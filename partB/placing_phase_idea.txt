@@ -285,8 +285,8 @@ Conclusion: Only place at best line initiatively.
 7 X - - - - - - X  B
 
 In sum: There are about 10 squares more valuable than others.
-        We should occupy them as early as possible. And then trying to kill
-        blacks.
+        We should occupy them as early as possible by using heuristic
+        function. And then trying to kill blacks.
 
 
 
