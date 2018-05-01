@@ -120,6 +120,7 @@ def _load_player(modulename, package='.'):
 # state, optimised with your specific usage in mind: deciding which action to
 # to choose each turn.
 
+
 class _Game:
     """Represent the state of a game of Watch Your Back!"""
     def __init__(self):
