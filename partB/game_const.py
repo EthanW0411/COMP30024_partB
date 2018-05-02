@@ -3,7 +3,7 @@ INITIAL_VALUE = 0
 
 """Constant for game board"""
 
-UNCCUPIED = '-'
+UNOCCUPIED = '-'
 CORNER = 'X'
 BLACK = '@'
 WHITE = 'O'
