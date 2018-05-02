@@ -6,7 +6,7 @@ class Player:
     def __init__(self, colour):
         self.colour = colour
         self.turnNum = 0
-        board = Game()
+        self.board = Game()
 
 
     def update(self, move):
@@ -17,11 +17,25 @@ class Player:
         action = self.action(turns)
         return action
 
+    def generate_initial_scoreboard(self):
+        if self.colour == const.WHITE:
+            for x in range(const.INITIAL_BOARD_SIDE):
+                for y in range(const.INITIAL_BOARD_SIDE):
+                    if self.board[x][y].piece == const.UNOCCUPIED:
+                        self.board[x][y].set_value(0)
+            self.board[0][5].set_value(200)
+            self.board[7][5].set.value(200)
+
+
+
+
     def placementPhase(self):
-        if (self.colour == const.WHITE)
+        current_score = 0
+        for x in range(const.INITIAL_BOARD_SIDE):
+            for y in range(const.INITIAL_BOARD_SIDE):
+                if self.board[x][y].value > current_score
 
 
-        return
 
 
 class Game:
@@ -30,12 +44,11 @@ class Game:
         for x in range(const.INITIAL_BOARD_SIDE):
             for y in range(const.INITIAL_BOARD_SIDE):
                 self.board[x][y] = Square(const.UNOCCUPIED)
-                self.board[x][y].set_value(0)
         for square in const.INITIAL_CORNER_LOCATION:
             x, y = square
             self.board[y][x].piece = const.CORNER
 
-        
+
         # tracking progress through game phases
         self.turns = 0
         self.phase = 'placing'
