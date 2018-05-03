@@ -1,6 +1,6 @@
 """initial value for heuristic function"""
 INITIAL_VALUE = 0
-
+CORNER_VALUE = -2
 """Constant for game board"""
 
 UNOCCUPIED = '-'
