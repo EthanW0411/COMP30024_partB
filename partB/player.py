@@ -9,6 +9,7 @@ class Player:
         self.colour = colour
         self.turnNum = 0
         self.game = Game()
+        "dadaa"
 
 
     def update(self, move):
