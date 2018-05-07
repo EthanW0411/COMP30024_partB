@@ -1,6 +1,7 @@
 """initial value for heuristic function"""
 INITIAL_VALUE = 0
 CORNER_VALUE = -2
+BY_CORNER_VALUE = -1
 """Constant for game board"""
 
 UNOCCUPIED = '-'
@@ -9,3 +10,4 @@ BLACK = '@'
 WHITE = 'O'
 INITIAL_BOARD_SIDE = 8
 INITIAL_CORNER_LOCATION = [(0, 0), (7, 0), (7, 7), (0, 7)]
+INITIAL_BY_CORNER_LOCATION = [(1, 0), (0, 1), (6, 0), (7, 1), (6, 7), (7, 6), (1, 7), (0, 7)]

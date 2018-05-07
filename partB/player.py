@@ -61,6 +61,9 @@ class Game:
         assign values for each square in game board for placing phase
 
         """
+        for square in const.INITIAL_BY_CORNER_LOCATION:
+            x, y = square
+            self.board[y][x].set_value(const.BY_CORNER_VALUE)
         for x in range(const.INITIAL_BOARD_SIDE):
             for y in range(const.INITIAL_BOARD_SIDE):
                 if colour == "white":
@@ -194,3 +197,8 @@ class Square:
     def is_corner(self):
         return self.piece == const.CORNER
 
+    def add_value(self, value):
+        self.value += value
+
+    def sub_value(self, value):
+        self.value -= value

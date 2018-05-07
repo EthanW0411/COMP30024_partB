@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="350a1137-3b73-4cf3-87ef-623d4863c586" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/partB/game_const.py" beforeDir="false" afterPath="$PROJECT_DIR$/partB/game_const.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/partB/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/partB/player.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,76 +18,56 @@
     <SUITE FILE_PATH="coverage/COMP30024_partB$referee.coverage" NAME="referee Coverage Results" MODIFIED="1525073335965" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/partB" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5326902">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="class_ex.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/partB/class_ex.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="57">
-                  <caret line="3" column="36" selection-start-line="3" selection-start-column="36" selection-end-line="3" selection-end-column="36" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="referee.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/partB/referee.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="570">
-                  <caret line="32" column="26" selection-start-line="32" selection-start-column="26" selection-end-line="32" selection-end-column="26" />
-                  <folding>
-                    <element signature="e#118#129#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="player.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/partB/player.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="146">
-                  <caret line="61" column="8" selection-start-line="61" selection-start-column="8" selection-end-line="61" selection-end-column="8" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="placing_phase_idea.txt" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/partB/placing_phase_idea.txt">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="5472">
-                  <caret line="288" column="42" selection-start-line="288" selection-start-column="42" selection-end-line="288" selection-end-column="42" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="game_const.py" pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/partB/game_const.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="152">
-                  <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file leaf-file-name="referee.py" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/partB/referee.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-7296">
-                  <caret line="110" selection-start-line="110" selection-end-line="110" selection-end-column="79" />
-                  <folding>
-                    <element signature="e#118#129#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="class_ex.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/partB/class_ex.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="57">
+              <caret line="3" column="36" selection-start-line="3" selection-start-column="36" selection-end-line="3" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="referee.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/partB/referee.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="570">
+              <caret line="32" column="26" selection-start-line="32" selection-start-column="26" selection-end-line="32" selection-end-column="26" />
+              <folding>
+                <element signature="e#118#129#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="player.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/partB/player.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-2405">
+              <caret line="65" column="60" selection-start-line="65" selection-start-column="60" selection-end-line="65" selection-end-column="60" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="placing_phase_idea.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/partB/placing_phase_idea.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="336">
+              <caret line="288" column="42" selection-start-line="288" selection-start-column="42" selection-end-line="288" selection-end-column="42" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="game_const.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/partB/game_const.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="228">
+              <caret line="12" column="90" selection-start-line="12" selection-start-column="90" selection-end-line="12" selection-end-column="90" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -234,17 +215,17 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-6" y="-6" width="1194" height="733" extended-state="6" />
+    <frame x="-6" y="-6" width="1194" height="733" extended-state="7" />
     <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="12" />
-      <window_info active="true" anchor="bottom" id="Event Log" order="0" sideWeight="0.5008803" side_tool="true" visible="true" weight="0.32998326" />
+      <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5008803" side_tool="true" weight="0.32998326" />
       <window_info anchor="bottom" id="Database Changes" order="1" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="2" weight="0.32998326" />
       <window_info anchor="bottom" id="Python Console" order="3" weight="0.32998326" />
       <window_info anchor="bottom" id="Run" order="7" weight="0.32998326" />
       <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.49911973" visible="true" weight="0.32998326" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.17869718" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18133803" />
       <window_info anchor="right" id="R Packages" order="3" />
       <window_info anchor="bottom" id="Docker" order="4" show_stripe_button="false" />
       <window_info anchor="right" id="R Graphics" order="3" />
@@ -269,6 +250,44 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/partB/class_ex.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="3" column="36" selection-start-line="3" selection-start-column="36" selection-end-line="3" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/partB/placing_phase_idea.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5472">
+          <caret line="288" column="42" selection-start-line="288" selection-start-column="42" selection-end-line="288" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/partB/game_const.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="152">
+          <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/partB/player.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1159">
+          <caret line="61" selection-start-line="61" selection-end-line="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/partB/referee.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="32" column="26" selection-start-line="32" selection-start-column="26" selection-end-line="32" selection-end-column="26" />
+          <folding>
+            <element signature="e#118#129#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/partB/class_ex.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="57">
@@ -390,20 +409,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/partB/placing_phase_idea.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5472">
-          <caret line="288" column="42" selection-start-line="288" selection-start-column="42" selection-end-line="288" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/partB/game_const.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="8" column="11" selection-start-line="8" selection-start-column="11" selection-end-line="8" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/partB/referee.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
@@ -414,10 +419,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/partB/placing_phase_idea.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="288" column="42" selection-start-line="288" selection-start-column="42" selection-end-line="288" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/partB/game_const.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" column="90" selection-start-line="12" selection-start-column="90" selection-end-line="12" selection-end-column="90" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/partB/player.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="146">
-          <caret line="61" column="8" selection-start-line="61" selection-start-column="8" selection-end-line="61" selection-end-column="8" />
+        <state relative-caret-position="-2405">
+          <caret line="65" column="60" selection-start-line="65" selection-start-column="60" selection-end-line="65" selection-end-column="60" />
         </state>
       </provider>
     </entry>
