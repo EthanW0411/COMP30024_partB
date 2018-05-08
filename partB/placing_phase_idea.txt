@@ -47,7 +47,7 @@ In the placing, our goal is not to lose any pieces
 and then try to kill as many enemies as possible.
 So if we could place pieces like shown above. we get
 benefit of getting into enemies' back.
-Then we could kill like this (Assume we are White):
+Then we could kill like thi		s (Assume we are White):
 
   0 1 2 3 4 5 6 7
 0 X - - - - - - X W
@@ -57,7 +57,7 @@ Then we could kill like this (Assume we are White):
 4 - - - - - - - -
 5 W - - - - - - -
 6 - - - - - - - - B
-7 X - - - - - - X B
+7 X - - - - - - X B 
 
 If black want to kill our first piece, Black has to place a place
 at (x,y) = (0,4)
