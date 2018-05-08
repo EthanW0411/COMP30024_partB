@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="41c2597a-958a-4903-9415-d7c394fa54f8" name="dimefox" url="http://dimefox.eng.unimelb.edu.au">
+        <fileTransfer host="dimefox.eng.unimelb.edu.au" port="22" accessType="SFTP">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

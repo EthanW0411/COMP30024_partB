@@ -1,4 +1,6 @@
 from partB import game_const as const
+from copy import deepcopy
+from random import randint
 
 # --------------------------------------------------------------------------- #
 
@@ -8,8 +10,7 @@ class Player:
     def __init__(self, colour):
         self.colour = colour
         self.turnNum = 0
-        self.game = Game()
-        "dadaa"
+        self.game = Game(colour)
 
 
     def update(self, move):
@@ -39,7 +40,8 @@ class Game:
         Modified from referee.py written by Matt Farrugia
         and Shreyash Patodia.
     """
-    def __init__(self):
+    def __init__(self, colour):
+        self.colour = colour
         self.board = [[Square(const.UNOCCUPIED) for _ in range(const.INITIAL_BOARD_SIDE)]
                       for _ in range(const.INITIAL_BOARD_SIDE)]
         for square in const.INITIAL_CORNER_LOCATION:
@@ -167,6 +169,12 @@ class Game:
         return (firstval in enemies and secondval in enemies)
 
 
+    def to_moves(self):
+        """
+        :return list of possible moves
+        """
+
+
 # --------------------------------------------------------------------------- #
 
 # HELPER CLASS FOR GAME
@@ -203,3 +211,96 @@ class Square:
 
     def sub_value(self, value):
         self.value -= value
+
+# --------------------------------------------------------------------------- #
+
+# ALPHA BETA PRUNING
+
+class AlphaBeta:
+    def __init__(self, root):
+        self.root = root
+        return
+
+    def alpha_beta_search(self, node):
+        infinity = float('inf')
+        alpha = -infinity
+        beta = infinity
+
+        successors = self.get_successors(node)
+        best_state = None
+        for state in successors:
+            value = self.min_value(state, alpha, beta)
+            if value > alpha:
+                alpha = value
+                best_state = state
+        print("AlphaBeta:  Utility Value of Root Node: = " + str(alpha))
+        print("AlphaBeta:  Best State is: " + best_state.name)
+        return best_state
+
+
+    def max_value(self, node, alpha, beta):
+        print("AlphaBeta-->MAX: Visited Node::" + node.name)
+        if self.is_terminal(node):
+            return  self.get_utility(node)
+
+        infinity = float('inf')
+        value = -infinity
+
+        successors = self.get_successors(node)
+        for state in successors:
+            value = max(value, self.min_value(state, alpha, beta))
+            if value >= beta:
+                return value
+            alpha = max(alpha, value)
+
+        return value
+
+    def min_value(self, node, alpha, beta):
+        print("AlphaBeta-->MIN: Visited Node::" + node.name)
+        if self.is_terminal(node):
+            return self.get_utility(node)
+        infinity = float('inf')
+        value = infinity
+
+        successors = self.get_successors(node)
+        for state in successors:
+            value = min(value, self.max_value(state, alpha, beta))
+            if value <= alpha:
+                return value
+            beta = min(beta, value)
+
+        return value
+
+    def get_utility(self, node):
+        assert node is not None
+        return node.value
+
+    def get_successors(self, node):
+        assert node is not None
+        return node.children
+
+    def create_successors(self, node):
+        assert node is not None
+        return node.board.to_moves()
+
+    def is_terminal(self, node):
+        assert node is not None
+        return node.level == 4
+
+
+# --------------------------------------------------------------------------- #
+
+# NODE STRUCTURE FOR TREE
+
+class Node:
+    def __init__(self, value, board, colour, level, move):
+        self.value = value
+        self.children = []
+        self.board = board
+        self.colour = colour
+        self.level = level
+        self.move = move
+
+    def add_children(self, node):
+        assert node is not None
+        self.children.append(node)
