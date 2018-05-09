@@ -306,8 +306,12 @@ class GameBoard:
         moves = []
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
-                if self.board[y][x].piece == UNOCCUPIED:
-                    moves.append((y, x))
+                if self.colour == "white" and y < 6:
+                    if self.board[y][x].piece == UNOCCUPIED:
+                        moves.append((y, x))
+                if self.colour == "black" and y > 5:
+                    if self.board[y][x].piece == UNOCCUPIED:
+                        moves.append((y, x))
         #print(str(moves))
         return moves
 
