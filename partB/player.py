@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 """initial value for heuristic function"""
+=======
+""""
+
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 INITIAL_VALUE = 0
 
-"""Constant for game board"""
 
 UNOCCUPIED = '-'
 CORNER = 'X'
@@ -20,6 +24,12 @@ def step(position, direction):
     dx, dy = direction
     return px + dx, py + dy
 
+<<<<<<< HEAD
+=======
+"""
+
+
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 from partB import game_const as const
 
 from copy import deepcopy
@@ -28,14 +38,23 @@ from random import randint
 
 # --------------------------------------------------------------------------- #
 
-# A player made for playing the Watch Your Back!
+# PLAYER WHICH RUNS ALPHABETA PRUNING
+
 class Player:
 
     def __init__(self, colour):
         self.colour = colour
         self.turnNum = 0
+<<<<<<< HEAD
         self.board = Board()
         self.game = Game(colour)
+=======
+
+        #self.board = Board()
+
+        self.game = Game(colour)
+
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 
 
     def update(self, move):
@@ -46,14 +65,6 @@ class Player:
         action = self.action(turns)
         return action
 
-    def generate_initial_scoreboard(self):
-        if self.colour == WHITE:
-            for x in range(INITIAL_BOARD_SIDE):
-                for y in range(INITIAL_BOARD_SIDE):
-                    if self.board[x][y].piece == UNOCCUPIED:
-                        self.board[x][y].set_value(0)
-            self.board[0][5].set_value(200)
-            self.board[7][5].set.value(200)
 
 
 
@@ -63,6 +74,10 @@ class Player:
 #        for x in range(INITIAL_BOARD_SIDE):
 #            for y in range(INITIAL_BOARD_SIDE):
 #                if self.board[x][y].value > current_score
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
     '''
         def placement_phase(self):
         current_score = 0
@@ -74,7 +89,10 @@ class Player:
 
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 class Board:
     """"Represent the state of a game of Watch Your Back!"""
     def __init__(self):
@@ -88,7 +106,10 @@ class Board:
             x, y = square
             self.board[y][x].piece = CORNER
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 # --------------------------------------------------------------------------- #
 
 # HELPER CLASS FOR PLAYER
@@ -106,7 +127,10 @@ class Game:
             x, y = square
             self.board[y][x].set_piece(const.CORNER)
             self.board[y][x].set_value(const.CORNER_VALUE)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 
         # tracking progress through game phases
         self.turns = 0
@@ -247,11 +271,37 @@ class Square:
     """Represent the a sprite on game board"""
     def __init__(self, piece):
         self.piece = piece
-        self.value = INITIAL_VALUE
+        self.value = const.INITIAL_VALUE
 
     def set_value(self, value):
         self.value = value
 
+<<<<<<< HEAD
+=======
+    def set_piece(self, piece):
+        self.piece = piece
+
+    def get_piece(self):
+        return self.piece
+
+    def get_value(self):
+        return self.value
+
+    def is_white(self):
+        return self.piece == const.WHITE
+
+    def is_black(self):
+        return self.piece == const.BLACK
+
+    def is_corner(self):
+        return self.piece == const.CORNER
+
+    def add_value(self, value):
+        self.value += value
+
+    def sub_value(self, value):
+        self.value -= value
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 
 class Piece:
 
@@ -358,6 +408,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
             best_score = v
             best_action = a
     return best_action
+<<<<<<< HEAD
 
     def set_piece(self, piece):
         self.piece = piece
@@ -376,12 +427,9 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 
     def is_corner(self):
         return self.piece == const.CORNER
+=======
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
 
-    def add_value(self, value):
-        self.value += value
-
-    def sub_value(self, value):
-        self.value -= value
 
 # --------------------------------------------------------------------------- #
 
@@ -390,7 +438,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
 class AlphaBeta:
     def __init__(self, root):
         self.root = root
-        return
+
 
     def alpha_beta_search(self, node):
         infinity = float('inf')
@@ -474,4 +522,8 @@ class Node:
 
     def add_children(self, node):
         assert node is not None
+<<<<<<< HEAD
         self.children.append(node)
+=======
+        self.children.append(node)
+>>>>>>> 2c175cf190fab8a61dbdfb1a030f6063e5ab24d0
