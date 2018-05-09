@@ -44,7 +44,7 @@ class Player:
         :param action: the opponent's recent action
         :return:
         """
-        self.game.update_acton(action)
+        self.game.update_action(action)
 
     def action(self, turns):
         """
@@ -100,7 +100,7 @@ class GameBoard:
 
         self.initialize_scoreboard(self.colour)
 
-    def update_acton(self, action):
+    def update_action(self, action):
         """
         update game board by a given action
 
@@ -108,14 +108,14 @@ class GameBoard:
         """
         if self.phase == 'placing':
             x, y = action
-            self.board[y][x] = self.opponent()
+            self.board[y][x].piece = self.opponent()
 
         if self.phase == 'moving':
             action_from, action_to = action
             a, b = action_from
             c, d = action_to
-            self.board[b][a] = UNOCCUPIED
-            self.board[d][c] = self.opponent()
+            self.board[b][a].piece = UNOCCUPIED
+            self.board[d][c].piece = self.opponent()
 
     def opponent(self):
         """
@@ -270,7 +270,7 @@ class GameBoard:
         :param square: the square to look around
         """
         x, y = square
-        piece = self.board[y][x]
+        piece = self.board[y][x].piece
         targets = self.targets(piece)
 
         # Check if piece in square eliminates other pieces
@@ -281,13 +281,13 @@ class GameBoard:
                 targetval = self.board[target_y][target_x]
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
-                    self.board[target_y][target_x] = '-'
+                    self.board[target_y][target_x].piece = '-'
                     self.pieces[targetval] -= 1
 
         # Check if the current piece is surrounded and should be eliminated
         if piece in self.pieces:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
-                self.board[y][x] = '-'
+                self.board[y][x].piece = '-'
                 self.pieces[piece] -= 1
 
     def moves_placing(self):
@@ -297,9 +297,9 @@ class GameBoard:
         moves = []
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
-                if self.board[y][x] == UNOCCUPIED:
+                if self.board[y][x].piece == UNOCCUPIED:
                     moves.append((y, x))
-
+        print(str(moves))
         return moves
 
 
@@ -363,8 +363,9 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            node.add_children(Node(None, node.game_board, next_level, state))
-            value = self.min_value(state, alpha, beta)
+            next_state = Node(None, node.game_board, next_level, state)
+            node.add_children(next_state)
+            value = self.min_value(next_state, alpha, beta)
             if value > alpha:
                 alpha = value
                 best_state = state
@@ -387,8 +388,9 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            node.add_children(Node(None, node.game_board, next_level, state))
-            value = max(value, self.min_value(state, alpha, beta))
+            next_state = Node(None, node.game_board, next_level, state)
+            node.add_children(next_state)
+            value = max(value, self.min_value(next_state, alpha, beta))
             if value >= beta:
                 return value
             alpha = max(alpha, value)
@@ -409,8 +411,9 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            node.add_children(Node(None, node.game_board, next_level, state))
-            value = min(value, self.max_value(state, alpha, beta))
+            next_state = Node(None, node.game_board, next_level, state)
+            node.add_children(next_state)
+            value = min(value, self.max_value(next_state, alpha, beta))
             if value <= alpha:
                 return value
             beta = min(beta, value)
@@ -430,7 +433,7 @@ class AlphaBeta:
             for y in range(INITIAL_BOARD_SIDE):
                 if node.game_board.board[y][x] == node.game_board.opponent():
                     node.value -= (100 + node.game_board.board[y][x].value) * 1.2
-                elif node.game_board.board[y][x] == node.board.allies():
+                elif node.game_board.board[y][x] == node.game_board.allies():
                     node.value += (100 + node.game_board.board[y][x].value) * 1.2
         return node.value
 
