@@ -1,7 +1,17 @@
-""""
+from copy import deepcopy
+from random import randint
 
+
+# --------------------------------------------------------------------------- #
+
+# GAME CONST
+
+
+"""initial value for heuristic function"""
 INITIAL_VALUE = 0
-
+CORNER_VALUE = -2
+BY_CORNER_VALUE = -1
+"""Constant for game board"""
 
 UNOCCUPIED = '-'
 CORNER = 'X'
@@ -10,23 +20,7 @@ WHITE = 'O'
 INITIAL_BOARD_SIDE = 8
 INITIAL_CORNER_LOCATION = [(0, 0), (7, 0), (7, 7), (0, 7)]
 DIRECTIONS = UP, DOWN, LEFT, RIGHT = (0, -1), (0, 1), (-1, 0), (1, 0)
-ENEMIES = {WHITE: {BLACK, CORNER}, BLACK: {WHITE, CORNER}}
-FRIENDS = {WHITE: {WHITE, CORNER}, BLACK: {BLACK, CORNER}}
-infinity = float('inf')
-
-
-def step(position, direction):
-    px, py = position
-    dx, dy = direction
-    return px + dx, py + dy
-
-"""
-
-
-from partB import game_const as const
-from copy import deepcopy
-from random import randint
-
+INITIAL_BY_CORNER_LOCATION = [(1, 0), (0, 1), (6, 0), (7, 1), (6, 7), (7, 6), (1, 7), (0, 7)]
 
 # --------------------------------------------------------------------------- #
 
@@ -36,87 +30,127 @@ class Player:
 
     def __init__(self, colour):
         self.colour = colour
-        self.turnNum = 0
-
-        #self.board = Board()
-
-        self.game = Game(colour)
+        self.game = GameBoard(colour)
 
 
 
-    def update(self, move):
-        self.update(move)
+    def update(self, action):
+        """
+        Called by referee to inform the player about the opponent's most recent move
+        In placing, an action is represented by a tuple, as this (x, y)
+        In moving, an action is represented by a nested tuple, as this ((a, b), (c, d))
+        To represent a forfeited turn, use the value None
+
+        :param action: the opponent's recent action
+        :return:
+        """
+        self.game.update_acton(action)
 
     def action(self, turns):
-        #self.turnNum = turns
-        action = self.action(turns)
-        return action
+        """
+        Called by referee to request an action by the player
+
+        :param turns: the number of turns that have taken place since the start of the current game phase
+        :return:
+        """
+
+        # update turn number
+        self.game.update_turns(turns)
+
+        '''
+                if turns <= 2:
+            best_square = sorted(self.game.board, key=lambda x: x.value, reverse=True)
+            action = (best_square.x, best_square.y)
+            return action
+        '''
+
+
+        if self.game.phase == 'placing':
+            root = Node(None, self.game, 1, None)
+            alpha_beta = AlphaBeta(None)
+            action = alpha_beta.alpha_beta_search(root)
+            print("Action: " + str(action))
+            return action
 
 
 
-
-#
-#    def placementPhase(self):
-#        current_score = 0
-#        for x in range(INITIAL_BOARD_SIDE):
-#            for y in range(INITIAL_BOARD_SIDE):
-#                if self.board[x][y].value > current_score
-
-    '''
-        def placement_phase(self):
-        current_score = 0
-        for x in range(const.INITIAL_BOARD_SIDE):
-            for y in range(const.INITIAL_BOARD_SIDE):
-                if self.board[x][y].value > current_score
-    '''
-
-
-
-
-class Board:
-    """"Represent the state of a game of Watch Your Back!"""
-    def __init__(self):
-        self.grid = {}
-        self.white_pieces = []
-        self.black_pieces = []
-        for x in range(INITIAL_BOARD_SIDE):
-            for y in range(INITIAL_BOARD_SIDE):
-                self.board[x][y] = Square(UNOCCUPIED)
-        for square in INITIAL_CORNER_LOCATION:
-            x, y = square
-            self.board[y][x].piece = CORNER
 
 # --------------------------------------------------------------------------- #
 
 # HELPER CLASS FOR PLAYER
 
-class Game:
+class GameBoard:
     """"Represent the state of a game of Watch Your Back!
         Modified from referee.py written by Matt Farrugia
         and Shreyash Patodia.
     """
     def __init__(self, colour):
         self.colour = colour
-        self.board = [[Square(const.UNOCCUPIED) for _ in range(const.INITIAL_BOARD_SIDE)]
-                      for _ in range(const.INITIAL_BOARD_SIDE)]
-        for square in const.INITIAL_CORNER_LOCATION:
+        self.board = [[Square(UNOCCUPIED, _, _) for _ in range(INITIAL_BOARD_SIDE)]
+                      for _ in range(INITIAL_BOARD_SIDE)]
+        for square in INITIAL_CORNER_LOCATION:
             x, y = square
-            self.board[y][x].set_piece(const.CORNER)
-            self.board[y][x].set_value(const.CORNER_VALUE)
+            self.board[y][x].set_piece(CORNER)
+            self.board[y][x].set_value(CORNER_VALUE)
 
         # tracking progress through game phases
         self.turns = 0
         self.phase = 'placing'
-        self.pieces = {WHITE: 0, BLACK: 0}
+        self.pieces = {'W': 0, 'B': 0}
 
-    def find_pieces(self, square):
-        for piece in self.black_pieces + self.white_pieces:
-            if piece.alive and piece.pos == square:
-                return piece
+        self.initialize_scoreboard(self.colour)
 
-    def get_board(self):
-        return self.board
+    def update_acton(self, action):
+        """
+        update game board by a given action
 
+        :param action: the opponent's recent action
+        """
+        if self.phase == 'placing':
+            x, y = action
+            self.board[y][x] = self.opponent()
+
+        if self.phase == 'moving':
+            action_from, action_to = action
+            a, b = action_from
+            c, d = action_to
+            self.board[b][a] = UNOCCUPIED
+            self.board[d][c] = self.opponent()
+
+    def opponent(self):
+        """
+        check opponent's piece
+
+        :return: opponent's piece
+        """
+        if self.colour == 'white':
+            return BLACK
+
+        if self.colour == 'black':
+            return WHITE
+
+    def allies(self):
+        """
+        check allies' piece
+
+        :return: allies' piece
+        """
+        if self.colour == 'white':
+            return WHITE
+        if self.colour == 'black':
+            return BLACK
+
+    def update_turns(self, turns):
+        """
+        update turn number and game phase based on given turn number
+
+        :param turns: the number of turns that have taken place since the start of the current game phase
+        """
+        self.turns = turns
+
+        # update game phase
+        if self.phase == 'placing' and turns > 24:
+            self.phase = 'moving'
 
 
     def initialize_scoreboard(self, colour):
@@ -124,31 +158,29 @@ class Game:
         assign values for each square in game board for placing phase
 
         """
-        for square in const.INITIAL_BY_CORNER_LOCATION:
+        for square in INITIAL_BY_CORNER_LOCATION:
             x, y = square
-            self.board[y][x].set_value(const.BY_CORNER_VALUE)
-        for x in range(const.INITIAL_BOARD_SIDE):
-            for y in range(const.INITIAL_BOARD_SIDE):
-                if colour == "white":
-                    if y in [0, 7] and x in [2, 3, 5]:
-                        """
-                        5: two corners on best offensive line
-                        3: traps on second defensive line
-                        2: two corners on best defensive line
-                        """
-                        self.board[y][x].set_value(200)
-                if colour == "black":
-                    if y in [0, 7] and x in [2, 4, 5]:
-                        """
-                        5: two corners on best offensive line
-                        4: check traps on second offensive line
-                        2: two corners on best defensive line
-                        """
-                        if x == 4:
-                            self.board[y][x].is_white()
-                            self.board[y][x-1].set_value(-1)
-                        else:
-                            self.board[y][x].set_value(200)
+            self.board[y][x].set_value(BY_CORNER_VALUE)
+
+        for x in range(INITIAL_BOARD_SIDE):
+            for y in range(INITIAL_BOARD_SIDE):
+                if colour == "white" and y in [0, 7] and x in [2, 3]:
+                    """
+                    3: traps on second defensive line
+                    2: two corners on best defensive line
+                    """
+                    self.board[y][x].set_value(200)
+
+                if colour == "black" and y in [0, 7] and x in [3, 5]:
+                    """
+                    5: two corners on best offensive line
+                    3: check traps on second offensive line
+                    """
+                    # check traps on (0,3) and (7,3)
+                    if x == 3 and self.board[y][x].is_white():
+                        self.board[y][x-1].set_value(-1)
+
+                    self.board[y][x].set_value(200)
 
     def within_board(self, x, y):
         """
@@ -161,7 +193,7 @@ class Game:
         :return:  True iff the coordinate is on the game board
         """
         for coord in [y, x]:
-            if coord < 0 or coord > (const.INITIAL_BOARD_SIDE - 1):
+            if coord < 0 or coord > (INITIAL_BOARD_SIDE - 1):
                 return False
         if self.board[y][x] == ' ':
             return False
@@ -176,10 +208,10 @@ class Game:
         :param piece: the type of piece ('B', 'W', or 'X')
         :return: set of piece types that can eliminate a piece of this type
         """
-        if piece == const.BLACK:
-            return {const.CORNER, const.WHITE}
-        elif piece == const.WHITE:
-            return {const.BLACK, const.CORNER}
+        if piece == BLACK:
+            return {CORNER, WHITE}
+        elif piece == WHITE:
+            return {BLACK, CORNER}
         return set()
 
     def targets(self, piece):
@@ -228,11 +260,47 @@ class Game:
         enemies = self.enemies(piece)
         return (firstval in enemies and secondval in enemies)
 
+    def eliminate_about(self, square):
+        """
+        A piece has entered this square: look around to eliminate adjacent
+        (surrounded) enemy pieces, then possibly eliminate this piece too.
+        Modified from referee.py written by Matt Farrugia
+        and Shreyash Patodia.
 
-    def to_moves(self):
+        :param square: the square to look around
         """
-        :return list of possible moves
+        x, y = square
+        piece = self.board[y][x]
+        targets = self.targets(piece)
+
+        # Check if piece in square eliminates other pieces
+        for dx, dy in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
+            target_x, target_y = x + dx, y + dy
+            targetval = None
+            if self.within_board(target_x, target_y):
+                targetval = self.board[target_y][target_x]
+            if targetval in targets:
+                if self.surrounded(target_x, target_y, -dx, -dy):
+                    self.board[target_y][target_x] = '-'
+                    self.pieces[targetval] -= 1
+
+        # Check if the current piece is surrounded and should be eliminated
+        if piece in self.pieces:
+            if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
+                self.board[y][x] = '-'
+                self.pieces[piece] -= 1
+
+    def moves_placing(self):
         """
+        :return list of possible moves in placing phase
+        """
+        moves = []
+        for x in range(INITIAL_BOARD_SIDE):
+            for y in range(INITIAL_BOARD_SIDE):
+                if self.board[y][x] == UNOCCUPIED:
+                    moves.append((y, x))
+
+        return moves
 
 
 # --------------------------------------------------------------------------- #
@@ -241,9 +309,11 @@ class Game:
 
 class Square:
     """Represent the a sprite on game board"""
-    def __init__(self, piece):
+    def __init__(self, piece, x, y):
         self.piece = piece
-        self.value = const.INITIAL_VALUE
+        self.value = INITIAL_VALUE
+        self.x = x
+        self.y = y
 
     def set_value(self, value):
         self.value = value
@@ -258,125 +328,19 @@ class Square:
         return self.value
 
     def is_white(self):
-        return self.piece == const.WHITE
+        return self.piece == WHITE
 
     def is_black(self):
-        return self.piece == const.BLACK
+        return self.piece == BLACK
 
     def is_corner(self):
-        return self.piece == const.CORNER
+        return self.piece == CORNER
 
     def add_value(self, value):
         self.value += value
 
     def sub_value(self, value):
         self.value -= value
-
-class Piece:
-
-    def __init__(self, player, pos, board):
-        self.player = player
-        self.pos = pos
-        self.board = board
-        self.alive = True
-
-    def moves(self):
-        possible_moves = []
-        for direction in DIRECTIONS:
-            adjacent_square = step(self.pos, direction)
-            if adjacent_square in self.board.grid:
-                if self.board.grid[adjacent_square] == UNOCCUPIED:
-                    possible_moves.append(adjacent_square)
-                    continue
-            opposite_square = step(adjacent_square, direction)
-            if opposite_square in self.board.grid:
-                if self.board.grid[opposite_square] == UNOCCUPIED:
-                    possible_moves.append(opposite_square)
-        return possible_moves
-
-    def makemove(self, newpos):
-
-        oldpos = self.pos
-        self.pos = newpos
-        self.board.grid[oldpos] = UNOCCUPIED
-        self.board.grid[newpos] = self.player
-
-        eliminated_pieces = []
-
-        for direction in DIRECTIONS:
-            adjacent_square = step(self.pos, direction)
-            opposite_square = step(adjacent_square, direction)
-            if opposite_square in self.board.grid:
-                if self.board.grid[adjacent_square] in ENEMIES[self.player] \
-                        and self.board.grid[opposite_square] in FRIENDS[self.player]:
-                    eliminated_piece = self.board.find_piece(adjacent_square)
-                    eliminated_piece.eliminate()
-                    eliminated_pieces.append(eliminated_piece)
-
-        for forward, backward in [(UP, DOWN), (LEFT, RIGHT)]:
-            front_square = step(self.pos, forward)
-            back_square = step(self.pos, backward)
-            if front_square in self.board.grid \
-                    and back_square in self.board.grid:
-                if self.board.grid[front_square] in ENEMIES[self.player] \
-                        and self.board.grid[back_square] in ENEMIES[self.player]:
-                    self.eliminate()
-                    eliminated_pieces.append(self)
-                    break
-
-        return eliminated_pieces
-
-    def eliminate(self):
-        self.alive = False
-        self.board.grid[self.pos] = UNOCCUPIED
-
-
-def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
-    """Search game to determine best action; use alpha-beta pruning.
-    This version cuts off search and uses an evaluation function."""
-
-    player = game.to_move(state)
-
-    # Functions used by alphabeta
-    def max_value(board, alpha, beta, depth):
-        if cutoff_test(state, depth):
-            return eval_fn(state)
-        v = -infinity
-        for a in game.actions(state):
-            v = max(v, min_value(game.result(state, a),
-                                 alpha, beta, depth + 1))
-            if v >= beta:
-                return v
-            alpha = max(alpha, v)
-        return v
-
-    def min_value(state, alpha, beta, depth):
-        if cutoff_test(state, depth):
-            return eval_fn(state)
-        v = infinity
-        for a in game.actions(state):
-            v = min(v, max_value(game.result(state, a),
-                                 alpha, beta, depth + 1))
-            if v <= alpha:
-                return v
-            beta = min(beta, v)
-        return v
-
-    # Body of alphabeta_cutoff_search starts here:
-    # The default test cuts off at depth d or at a terminal state
-    cutoff_test = (cutoff_test or
-                   (lambda state, depth: depth > d or
-                    game.terminal_test(state)))
-    eval_fn = eval_fn or (lambda state: game.utility(state, player))
-    best_score = -infinity
-    beta = infinity
-    best_action = None
-    for a in game.actions(state):
-        v = min_value(game.result(state, a), best_score, beta, 1)
-        if v > best_score:
-            best_score = v
-            best_action = a
-    return best_action
 
 
 # --------------------------------------------------------------------------- #
@@ -387,34 +351,43 @@ class AlphaBeta:
     def __init__(self, root):
         self.root = root
 
-
     def alpha_beta_search(self, node):
         infinity = float('inf')
         alpha = -infinity
         beta = infinity
 
-        successors = self.get_successors(node)
+        successors = self.create_successors(node)
         best_state = None
         for state in successors:
+            print("State in alpha_beta search:" + str(state))
+            node.game_board.update_action(state)
+            node.game_board.eliminate_about(state)
+            next_level = node.level + 1
+            node.add_children(Node(None, node.game_board, next_level, state))
             value = self.min_value(state, alpha, beta)
             if value > alpha:
                 alpha = value
                 best_state = state
-        print("AlphaBeta:  Utility Value of Root Node: = " + str(alpha))
-        print("AlphaBeta:  Best State is: " + best_state.name)
+        #print("AlphaBeta:  Utility Value of Root Node: = " + str(alpha))
+        #print("AlphaBeta:  Best State is: " + best_state.name)
         return best_state
 
 
     def max_value(self, node, alpha, beta):
-        print("AlphaBeta-->MAX: Visited Node::" + node.name)
+        #print("AlphaBeta-->MAX: Visited Node::" + node.name)
         if self.is_terminal(node):
-            return  self.get_utility(node)
+            return self.get_utility(node)
 
         infinity = float('inf')
         value = -infinity
 
-        successors = self.get_successors(node)
+        successors = self.create_successors(node)
         for state in successors:
+            print("State in max_value:" + str(state))
+            node.game_board.update_action(state)
+            node.game_board.eliminate_about(state)
+            next_level = node.level + 1
+            node.add_children(Node(None, node.game_board, next_level, state))
             value = max(value, self.min_value(state, alpha, beta))
             if value >= beta:
                 return value
@@ -423,14 +396,20 @@ class AlphaBeta:
         return value
 
     def min_value(self, node, alpha, beta):
-        print("AlphaBeta-->MIN: Visited Node::" + node.name)
+        #print("AlphaBeta-->MIN: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
         infinity = float('inf')
         value = infinity
 
-        successors = self.get_successors(node)
+        successors = self.create_successors(node)
+
         for state in successors:
+            print("State in min_value:" + str(state))
+            node.game_board.update_action(state)
+            node.game_board.eliminate_about(state)
+            next_level = node.level + 1
+            node.add_children(Node(None, node.game_board, next_level, state))
             value = min(value, self.max_value(state, alpha, beta))
             if value <= alpha:
                 return value
@@ -439,16 +418,25 @@ class AlphaBeta:
         return value
 
     def get_utility(self, node):
-        assert node is not None
-        return node.value
+        '''
+        Calculate utility from a given game state
 
-    def get_successors(self, node):
+        :param node: the given game state
+        :return: utility
+        '''
         assert node is not None
-        return node.children
+
+        for x in range(INITIAL_BOARD_SIDE):
+            for y in range(INITIAL_BOARD_SIDE):
+                if node.game_board.board[y][x] == node.game_board.opponent():
+                    node.value -= (100 + node.game_board.board[y][x].value) * 1.2
+                elif node.game_board.board[y][x] == node.board.allies():
+                    node.value += (100 + node.game_board.board[y][x].value) * 1.2
+        return node.value
 
     def create_successors(self, node):
         assert node is not None
-        return node.board.to_moves()
+        return node.game_board.moves_placing()
 
     def is_terminal(self, node):
         assert node is not None
@@ -460,11 +448,10 @@ class AlphaBeta:
 # NODE STRUCTURE FOR TREE
 
 class Node:
-    def __init__(self, value, board, colour, level, move):
+    def __init__(self, value, game_board, level, move):
         self.value = value
         self.children = []
-        self.board = board
-        self.colour = colour
+        self.game_board = game_board
         self.level = level
         self.move = move
 
