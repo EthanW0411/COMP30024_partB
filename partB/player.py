@@ -443,7 +443,7 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
-        return node.level == 4
+        return node.level == 3
 
 
 # --------------------------------------------------------------------------- #
