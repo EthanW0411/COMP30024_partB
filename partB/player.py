@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 """initial value for heuristic function"""
 INITIAL_VALUE = 0
 
@@ -20,11 +19,12 @@ def step(position, direction):
     px, py = position
     dx, dy = direction
     return px + dx, py + dy
-=======
+
 from partB import game_const as const
+
 from copy import deepcopy
 from random import randint
->>>>>>> 3cd3aed9ec8c9d27ea2fb68041f7e6921059f4cc
+
 
 # --------------------------------------------------------------------------- #
 
@@ -34,11 +34,8 @@ class Player:
     def __init__(self, colour):
         self.colour = colour
         self.turnNum = 0
-<<<<<<< HEAD
         self.board = Board()
-=======
         self.game = Game(colour)
->>>>>>> 3cd3aed9ec8c9d27ea2fb68041f7e6921059f4cc
 
 
     def update(self, move):
@@ -48,7 +45,6 @@ class Player:
         #self.turnNum = turns
         action = self.action(turns)
         return action
-<<<<<<< HEAD
 
     def generate_initial_scoreboard(self):
         if self.colour == WHITE:
@@ -67,7 +63,6 @@ class Player:
 #        for x in range(INITIAL_BOARD_SIDE):
 #            for y in range(INITIAL_BOARD_SIDE):
 #                if self.board[x][y].value > current_score
-=======
     '''
         def placement_phase(self):
         current_score = 0
@@ -75,12 +70,11 @@ class Player:
             for y in range(const.INITIAL_BOARD_SIDE):
                 if self.board[x][y].value > current_score
     '''
->>>>>>> 3cd3aed9ec8c9d27ea2fb68041f7e6921059f4cc
 
 
 
 
-<<<<<<< HEAD
+
 class Board:
     """"Represent the state of a game of Watch Your Back!"""
     def __init__(self):
@@ -94,7 +88,7 @@ class Board:
             x, y = square
             self.board[y][x].piece = CORNER
 
-=======
+
 # --------------------------------------------------------------------------- #
 
 # HELPER CLASS FOR PLAYER
@@ -112,7 +106,7 @@ class Game:
             x, y = square
             self.board[y][x].set_piece(const.CORNER)
             self.board[y][x].set_value(const.CORNER_VALUE)
->>>>>>> 3cd3aed9ec8c9d27ea2fb68041f7e6921059f4cc
+
 
         # tracking progress through game phases
         self.turns = 0
@@ -258,7 +252,7 @@ class Square:
     def set_value(self, value):
         self.value = value
 
-<<<<<<< HEAD
+
 class Piece:
 
     def __init__(self, player, pos, board):
@@ -364,7 +358,7 @@ def alphabeta_cutoff_search(state, game, d=4, cutoff_test=None, eval_fn=None):
             best_score = v
             best_action = a
     return best_action
-=======
+
     def set_piece(self, piece):
         self.piece = piece
 
@@ -481,4 +475,3 @@ class Node:
     def add_children(self, node):
         assert node is not None
         self.children.append(node)
->>>>>>> 3cd3aed9ec8c9d27ea2fb68041f7e6921059f4cc
