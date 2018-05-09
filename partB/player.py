@@ -363,7 +363,7 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            next_state = Node(None, node.game_board, next_level, state)
+            next_state = Node(0, node.game_board, next_level, state)
             node.add_children(next_state)
             value = self.min_value(next_state, alpha, beta)
             if value > alpha:
@@ -388,7 +388,7 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            next_state = Node(None, node.game_board, next_level, state)
+            next_state = Node(0, node.game_board, next_level, state)
             node.add_children(next_state)
             value = max(value, self.min_value(next_state, alpha, beta))
             if value >= beta:
@@ -411,7 +411,7 @@ class AlphaBeta:
             node.game_board.update_action(state)
             node.game_board.eliminate_about(state)
             next_level = node.level + 1
-            next_state = Node(None, node.game_board, next_level, state)
+            next_state = Node(0, node.game_board, next_level, state)
             node.add_children(next_state)
             value = min(value, self.max_value(next_state, alpha, beta))
             if value <= alpha:
@@ -443,7 +443,7 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
-        return node.level == 3
+        return node.level == 4
 
 
 # --------------------------------------------------------------------------- #
