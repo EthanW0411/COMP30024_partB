@@ -90,7 +90,12 @@ class Player:
                 self.game.update_action_in_search(action)
                 self.game.eliminate_about(action)
                 return action
-            root = Node(None, self.game, 1, None, self.colour)
+            if turns == 1:
+                action = (7, 5)
+                self.game.update_action(action)
+                self.game.eliminate_about(action)
+                return action
+            root = Node(0, self.game, 0, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
             self.game.update_action_in_search(action)
@@ -154,6 +159,7 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.allies()
             self.pieces[self.allies()] += 1
+            return self.board[y][x].value
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -334,7 +340,7 @@ class GameBoard:
         x, y = square
         piece = self.board[y][x].piece
         targets = self.targets(piece)
-
+        current_value = 0
         # Check if piece in square eliminates other pieces
         for dx, dy in [(-1, 0), (1, 0), (0, 1), (0, -1)]:
             target_x, target_y = x + dx, y + dy
@@ -343,6 +349,7 @@ class GameBoard:
                 targetval = self.board[target_y][target_x].piece
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
+                    current_value += 50
                     self.board[target_y][target_x].piece = '-'
                     self.pieces[targetval] -= 1
 
@@ -351,6 +358,8 @@ class GameBoard:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
                 self.board[y][x].piece = '-'
                 self.pieces[piece] -= 1
+                current_value -= 80
+        return current_value
 
     def moves_placing(self):
         """
@@ -439,9 +448,9 @@ class AlphaBeta:
         for test_move in potential_moves:
             #print("State in alpha_beta search:" + str(state[0]))
             board = deepcopy(node.game)
-            board.update_action_in_search(test_move)
-            board.eliminate_about(test_move)
-            next_move = Node(None, board, node.level + 1, test_move, board.colour)
+            node.value += board.update_action_in_search(test_move)
+            node.value += board.eliminate_about(test_move)
+            next_move = Node(node.value, board, node.level + 1, test_move, board.colour)
             node.add_children(next_move)
             next_value = self.min_value(next_move, alpha, beta)
             if next_value > value:
@@ -461,16 +470,16 @@ class AlphaBeta:
         infinity = float('inf')
         value = -infinity
 
-        successors = self.create_successors(node)
-        for state in successors:
+        potential_moves = self.create_successors(node)
+        for test_move in potential_moves:
            # print("State in max_value:" + str(state))
             board = deepcopy(node.game)
-            board.update_action_in_search(state)
-            board.eliminate_about(state)
+            node.value += board.update_action_in_search(test_move)
+            node.value += board.eliminate_about(test_move)
             next_level = node.level + 1
-            next_state = Node(0, board, next_level, state, board.opponent_colour())
-            node.add_children(next_state)
-            next_value = self.min_value(next_state, alpha, beta)
+            next_move = Node(node.value, board, next_level, test_move, board.opponent_colour())
+            node.add_children(next_move)
+            next_value = self.min_value(next_move, alpha, beta)
             if next_value > value:
                 value = next_value
             if next_value > alpha:
@@ -487,17 +496,16 @@ class AlphaBeta:
         infinity = float('inf')
         value = infinity
 
-        successors = self.create_successors(node)
+        potential_moves = self.create_successors(node)
 
-        for state in successors:
+        for test_move in potential_moves:
            # print("State in min_value:" + str(state))
             board = deepcopy(node.game)
-            board.update_action_in_search(state)
-            board.eliminate_about(state)
-            next_level = node.level + 1
-            next_state = Node(0, board, next_level, state, board.opponent_colour())
-            node.add_children(next_state)
-            next_value = self.max_value(next_state, alpha, beta)
+            board.update_action_in_search(test_move)
+            board.eliminate_about(test_move)
+            next_move = Node(node.value, board, node.level+1, test_move, board.opponent_colour())
+            node.add_children(next_move)
+            next_value = self.max_value(next_move, alpha, beta)
             if next_value < value:
                 value = next_value
             if next_value <= alpha:
@@ -514,13 +522,14 @@ class AlphaBeta:
         :return: utility
         '''
         assert node is not None
+        #print_board(node.game.board)
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
                 if node.game.board[y][x].piece == node.game.opponent():
-                    node.value -= (100 + node.game.board[y][x].value) * 1.2
+                    node.value -= (50 + node.game.board[y][x].value)
                     #print("Utility opponent: " + str(node.value))
                 elif node.game.board[y][x].piece == node.game.allies():
-                    node.value += (100 + node.game.board[y][x].value) * 1.2
+                    node.value += (100 + node.game.board[y][x].value)
                     #print("Utility allies: " + str(node.value))
 
         #infinity = float('inf')
@@ -557,7 +566,7 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
-        return node.level == 4
+        return node.level == 3
 
 
 # --------------------------------------------------------------------------- #
