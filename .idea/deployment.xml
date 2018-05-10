@@ -5,7 +5,7 @@
       <paths name="dimefox">
         <serverdata>
           <mappings>
-            <mapping deploy="/storage3/beta/students/l/lianmingw/COMP30024/" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/storage3/alpha/students/a/ahurbe/" local="$PROJECT_DIR$/partB" web="/" />
           </mappings>
         </serverdata>
       </paths>
