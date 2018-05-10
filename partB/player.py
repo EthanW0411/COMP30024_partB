@@ -322,7 +322,7 @@ class GameBoard:
         # Check if the current piece is surrounded and should be eliminated
         if piece in self.pieces:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
-                self.board[y][x].piece = '-'
+                self.board[y][x].piece = UNOCCUPIED
                 self.pieces[piece] -= 1
 
     def moves_placing(self):
@@ -330,7 +330,6 @@ class GameBoard:
         :return list of possible moves in placing phase
         """
 
-        print_board_piece(self.board)
         moves = []
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
@@ -338,17 +337,17 @@ class GameBoard:
                 if self.colour == "white" and y <= 5:
                     #print(self.colour)
                     if self.board[y][x].piece == UNOCCUPIED:
-                        print("test in moves_placing when colour == white and y <=5")
+                        #print("test in moves_placing when colour == white and y <=5")
                         print(self.board[y][x].piece)
                         print(self.board[y][x].piece)
                         moves.append((x, y))
                 if self.colour == "black" and y >= 2:
 
-                    print("test in moves_placing when colour == black and y >=2")
+                    #print("test in moves_placing when colour == black and y >=2")
                     if self.board[y][x].piece == UNOCCUPIED:
                         print(self.board[y][x].piece)
                         moves.append((x, y))
-        print("list of possible moves: " + str(moves))
+        #print("list of possible moves: " + str(moves))
         return moves
 
 
@@ -401,7 +400,7 @@ class AlphaBeta:
         self.root = root
 
     def alpha_beta_search(self, node):
-        print("Calling alpha beta search--------------------------------------------------------------------------")
+        #print("Calling alpha beta search--------------------------------------------------------------------------")
         infinity = float('inf')
         value = -infinity
         alpha = -infinity
@@ -411,7 +410,7 @@ class AlphaBeta:
         best_state = None
         for state in successors:
             #print("State in alpha_beta search:" + str(state[0]))
-            board = deepcopy(node.game)
+            board = node.game
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
@@ -427,7 +426,7 @@ class AlphaBeta:
 
 
     def max_value(self, node, alpha, beta):
-        print("Calling max_value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        #print("Calling max_value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         #print("AlphaBeta-->MAX: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
@@ -438,7 +437,7 @@ class AlphaBeta:
         successors = self.create_successors(node)
         for state in successors:
             print("State in max_value:" + str(state))
-            board = deepcopy(node.game)
+            board = node.game
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
@@ -454,7 +453,7 @@ class AlphaBeta:
         return value
 
     def min_value(self, node, alpha, beta):
-        print("Calling min_value################################################################################")
+        #print("Calling min_value################################################################################")
         #print("AlphaBeta-->MIN: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
@@ -465,7 +464,7 @@ class AlphaBeta:
 
         for state in successors:
             print("State in min_value:" + str(state))
-            board = deepcopy(node.game)
+            board = node.game
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
