@@ -27,14 +27,14 @@ INITIAL_BY_CORNER_LOCATION = [(1, 0), (0, 1), (6, 0), (7, 1), (6, 7), (7, 6), (1
 def print_board(board):
     for y in range(INITIAL_BOARD_SIDE):
         for x in range(INITIAL_BOARD_SIDE):
-            print(board[y][x].value, end='')
+            print('%3d ' % board[y][x].value, end='')
         print("\n")
 
 
 def print_board_piece(board):
     for y in range(INITIAL_BOARD_SIDE):
         for x in range(INITIAL_BOARD_SIDE):
-            print(board[y][x].piece, end='')
+            print(board[y][x].piece + ' ', end='')
         print("\n")
 
 
@@ -58,7 +58,12 @@ class Player:
         :param action: the opponent's recent action
         :return:
         """
+        print("-----------------------------------------update player---------------------------------------------")
         self.game.update_action(action)
+        self.game.eliminate_about(action)
+        print("Player own game board updated: " + self.colour)
+        print_board_piece(self.game.board)
+        print("-----------------------------------------finish update---------------------------------------------")
 
     def action(self, turns):
         """
@@ -78,10 +83,18 @@ class Player:
             return action
         '''
 
+        #print_board_piece(self.game.board)
         if self.game.phase == 'placing':
+            if turns == 0:
+                action = (0, 2)
+                self.game.update_action_in_search(action)
+                self.game.eliminate_about(action)
+                return action
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
+            self.game.update_action_in_search(action)
+            self.game.eliminate_about(action)
             print("Action: " + str(action))
             return action
 
@@ -109,7 +122,7 @@ class GameBoard:
         # tracking progress through game phases
         self.turns = 0
         self.phase = 'placing'
-        self.pieces = {'W': 0, 'B': 0}
+        self.pieces = {WHITE: 0, BLACK: 0}
 
         self.initialize_scoreboard(self.colour)
 
@@ -122,6 +135,7 @@ class GameBoard:
         if self.phase == 'placing':
             x, y = action
             self.board[y][x].piece = self.opponent()
+            self.pieces[self.opponent()] += 1
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -139,6 +153,7 @@ class GameBoard:
         if self.phase == 'placing':
             x, y = action
             self.board[y][x].piece = self.allies()
+            self.pieces[self.allies()] += 1
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -159,6 +174,18 @@ class GameBoard:
 
         if self.colour == 'black':
             return WHITE
+
+    def opponent_colour(self):
+        """
+        check opponent's piece
+
+        :return: opponent's piece
+        """
+        if self.colour == 'white':
+            return 'black'
+
+        if self.colour == 'black':
+            return 'white'
 
     def allies(self):
         """
@@ -196,14 +223,14 @@ class GameBoard:
 
         for y in range(INITIAL_BOARD_SIDE):
             for x in range(INITIAL_BOARD_SIDE):
-                if colour == "white" and y in [0, 7] and x in [2, 3]:
+                if colour == "white"  and x in [0, 2, 4, 6, 7] and y in [2, 3]:
                     """
                     3: traps on second defensive line
                     2: two corners on best defensive line
                     """
                     self.board[y][x].set_value(200)
 
-                if colour == "black" and y in [0, 7] and x in [3, 5]:
+                if colour == "black" and x in [0, 2, 4, 6, 7] and y in [5]:
                     """
                     5: two corners on best offensive line
                     3: check traps on second offensive line
@@ -259,12 +286,12 @@ class GameBoard:
         :param piece: the type of piece ('B', 'W', or 'X')
         :return: the set of piece types that a piece of this type can eliminate
         """
-        if piece == 'B':
-            return {'W'}
-        elif piece == 'W':
-            return {'B'}
+        if piece == '@':
+            return {'O'}
+        elif piece == '0':
+            return {'@'}
         elif piece == 'X':
-            return {'B', 'W'}
+            return {'O', '@'}
         return set()
 
     def surrounded(self, x, y, dx, dy):
@@ -313,7 +340,7 @@ class GameBoard:
             target_x, target_y = x + dx, y + dy
             targetval = None
             if self.within_board(target_x, target_y):
-                targetval = self.board[target_y][target_x]
+                targetval = self.board[target_y][target_x].piece
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
                     self.board[target_y][target_x].piece = '-'
@@ -330,7 +357,7 @@ class GameBoard:
         :return list of possible moves in placing phase
         """
 
-        print_board_piece(self.board)
+        #print_board_piece(self.board)
         moves = []
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
@@ -338,17 +365,17 @@ class GameBoard:
                 if self.colour == "white" and y <= 5:
                     #print(self.colour)
                     if self.board[y][x].piece == UNOCCUPIED:
-                        print("test in moves_placing when colour == white and y <=5")
-                        print(self.board[y][x].piece)
-                        print(self.board[y][x].piece)
+                        #print("test in moves_placing when colour == white and y <=5")
+                       # print(self.board[y][x].piece)
+                        #print(self.board[y][x].piece)
                         moves.append((x, y))
                 if self.colour == "black" and y >= 2:
 
-                    print("test in moves_placing when colour == black and y >=2")
+                   # print("test in moves_placing when colour == black and y >=2")
                     if self.board[y][x].piece == UNOCCUPIED:
-                        print(self.board[y][x].piece)
+                       # print(self.board[y][x].piece)
                         moves.append((x, y))
-        print("list of possible moves: " + str(moves))
+        #print("list of possible moves: " + str(moves))
         return moves
 
 
@@ -401,7 +428,7 @@ class AlphaBeta:
         self.root = root
 
     def alpha_beta_search(self, node):
-        print("Calling alpha beta search--------------------------------------------------------------------------")
+        #print("Calling alpha beta search--------------------------------------------------------------------------")
         infinity = float('inf')
         value = -infinity
         alpha = -infinity
@@ -427,7 +454,7 @@ class AlphaBeta:
 
 
     def max_value(self, node, alpha, beta):
-        print("Calling max_value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+       # print("Calling max_value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
         #print("AlphaBeta-->MAX: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
@@ -437,12 +464,12 @@ class AlphaBeta:
 
         successors = self.create_successors(node)
         for state in successors:
-            print("State in max_value:" + str(state))
+           # print("State in max_value:" + str(state))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
-            next_state = Node(0, board, next_level, state, board.colour)
+            next_state = Node(0, board, next_level, state, board.opponent_colour())
             node.add_children(next_state)
             next_value = self.min_value(next_state, alpha, beta)
             if next_value > value:
@@ -454,7 +481,7 @@ class AlphaBeta:
         return value
 
     def min_value(self, node, alpha, beta):
-        print("Calling min_value################################################################################")
+        #print("Calling min_value################################################################################")
         #print("AlphaBeta-->MIN: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
@@ -464,12 +491,12 @@ class AlphaBeta:
         successors = self.create_successors(node)
 
         for state in successors:
-            print("State in min_value:" + str(state))
+           # print("State in min_value:" + str(state))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
-            next_state = Node(0, board, next_level, state, board.colour)
+            next_state = Node(0, board, next_level, state, board.opponent_colour())
             node.add_children(next_state)
             next_value = self.max_value(next_state, alpha, beta)
             if next_value < value:
@@ -490,10 +517,12 @@ class AlphaBeta:
         assert node is not None
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
-                if node.game.board[y][x] == node.game.opponent():
+                if node.game.board[y][x].piece == node.game.opponent():
                     node.value -= (100 + node.game.board[y][x].value) * 1.2
-                elif node.game.board[y][x] == node.game.allies():
-                    node.value += (100 + node.game_board.board[y][x].value) * 1.2
+                    #print("Utility opponent: " + str(node.value))
+                elif node.game.board[y][x].piece == node.game.allies():
+                    node.value += (100 + node.game.board[y][x].value) * 1.2
+                    #print("Utility allies: " + str(node.value))
 
         #infinity = float('inf')
         #print("The node colour is: " + node.colour)
@@ -520,6 +549,7 @@ class AlphaBeta:
         #                    node.value -= (100 + node.game.board[y][x].value) * 1.2
         #                elif node.game.board[y][x] == node.game.allies():
         #                    node.value += (100 + node.game.board[y][x].value) * 1.2
+        #print("Utility: " + str(node.value))
         return node.value
 
     def create_successors(self, node):
@@ -528,7 +558,7 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
-        return node.level == 4
+        return node.level == 3
 
 
 # --------------------------------------------------------------------------- #
