@@ -1,5 +1,5 @@
 from copy import deepcopy
-from random import randint
+from random import shuffle
 
 
 # --------------------------------------------------------------------------- #
@@ -411,7 +411,7 @@ class AlphaBeta:
         best_state = None
         for state in successors:
             #print("State in alpha_beta search:" + str(state[0]))
-            board = node.game
+            board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
@@ -438,7 +438,7 @@ class AlphaBeta:
         successors = self.create_successors(node)
         for state in successors:
             print("State in max_value:" + str(state))
-            board = node.game
+            board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
@@ -465,7 +465,7 @@ class AlphaBeta:
 
         for state in successors:
             print("State in min_value:" + str(state))
-            board = node.game
+            board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
             next_level = node.level + 1
