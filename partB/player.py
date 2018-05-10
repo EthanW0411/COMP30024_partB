@@ -434,23 +434,22 @@ class AlphaBeta:
         alpha = -infinity
         beta = infinity
 
-        successors = self.create_successors(node)
-        best_state = None
-        for state in successors:
+        potential_moves = self.create_successors(node)
+        best_move = None
+        for test_move in potential_moves:
             #print("State in alpha_beta search:" + str(state[0]))
             board = deepcopy(node.game)
-            board.update_action_in_search(state)
-            board.eliminate_about(state)
-            next_level = node.level + 1
-            next_state = Node(0, board, next_level, state, board.colour)
-            node.add_children(next_state)
-            next_value = self.min_value(next_state, alpha, beta)
+            board.update_action_in_search(test_move)
+            board.eliminate_about(test_move)
+            next_move = Node(None, board, node.level + 1, test_move, board.colour)
+            node.add_children(next_move)
+            next_value = self.min_value(next_move, alpha, beta)
             if next_value > value:
                 value = next_value
-                best_state = state
+                best_move = next_move
         #print("AlphaBeta:  Utility Value of Root Node: = " + str(alpha))
         #print("AlphaBeta:  Best State is: " + best_state.name)
-        return best_state
+        return best_move
 
 
     def max_value(self, node, alpha, beta):
@@ -558,7 +557,7 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
-        return node.level == 3
+        return node.level == 4
 
 
 # --------------------------------------------------------------------------- #
