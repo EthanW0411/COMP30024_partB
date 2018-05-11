@@ -304,7 +304,7 @@ class GameBoard:
         for coord in [y, x]:
             if coord < 0 or coord > (INITIAL_BOARD_SIDE - 1):
                 return False
-        if self.board[y][x] == ' ':
+        if self.board[y][x].piece == ' ':
             return False
         return True
 
