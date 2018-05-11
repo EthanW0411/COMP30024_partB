@@ -501,8 +501,8 @@ class AlphaBeta:
         for test_move in potential_moves:
            # print("State in min_value:" + str(state))
             board = deepcopy(node.game)
-            board.update_action_in_search(test_move)
-            board.eliminate_about(test_move)
+            node.value += board.update_action_in_search(test_move)
+            node.value += board.eliminate_about(test_move)
             next_move = Node(node.value, board, node.level+1, test_move, board.opponent_colour())
             node.add_children(next_move)
             next_value = self.max_value(next_move, alpha, beta)
