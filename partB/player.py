@@ -90,6 +90,21 @@ class Player:
                 self.game.update_action_in_search(action)
                 self.game.eliminate_about(action)
                 return action
+            if turns == 1:
+                action = (7, 5)
+                self.game.update_action_in_search(action)
+                self.game.eliminate_about(action)
+                return action
+            if turns == 2:
+                action = (7, 2)
+                self.game.update_action_in_search(action)
+                self.game.eliminate_about(action)
+                return action
+            if turns == 3:
+                action = (0, 5)
+                self.game.update_action_in_search(action)
+                self.game.eliminate_about(action)
+                return action
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
