@@ -112,6 +112,14 @@ class Player:
             self.game.eliminate_about(action)
             print("Action: " + str(action))
             return action
+        if self.game.phase == 'moving':
+            root = Node(None, self.game, 1, None, self.colour)
+            alpha_beta = AlphaBeta(None)
+            action = alpha_beta.alpha_beta_search(root)
+            self.game.update_action_in_search(action)
+            self.game.eliminate_about(action)
+            print("Action: " + str(action))
+            return action
 
 
 
@@ -138,6 +146,8 @@ class GameBoard:
         self.turns = 0
         self.phase = 'placing'
         self.pieces = {WHITE: 0, BLACK: 0}
+        self.white_pieces = []
+        self.black_pieces = []
 
         self.initialize_scoreboard(self.colour)
 
@@ -154,6 +164,10 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
+            if self.colour == 'white':
+                self.black_pieces.append(self.board[y][x].piece)
+            if self.colour == 'black':
+                self.white_pieces.append(self.board[y][x].piece)
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -200,7 +214,10 @@ class GameBoard:
         if self.phase == 'placing':
             x, y = action
             self.board[y][x].piece = self.allies()
-            self.pieces[self.allies()] += 1
+            if self.colour == 'white':
+                self.white_pieces.append(self.board[y][x].piece)
+            if self.colour == 'black':
+                self.white_pieces.append(self.board[y][x].piece)
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -406,26 +423,32 @@ class GameBoard:
         """
 
         #print_board_piece(self.board)
-        moves = []
-        for x in range(INITIAL_BOARD_SIDE):
-            for y in range(INITIAL_BOARD_SIDE):
+        if self.phase == 'placing':
+            moves = []
+            for x in range(INITIAL_BOARD_SIDE):
+                for y in range(INITIAL_BOARD_SIDE):
 
-                if self.colour == "white" and y <= 5 and y >= 2:
-                    #print(self.colour)
-                    if self.board[y][x].piece == UNOCCUPIED:
-                        #print("test in moves_placing when colour == white and y <=5")
-                       # print(self.board[y][x].piece)
-                        #print(self.board[y][x].piece)
-                        moves.append((x, y))
-                if self.colour == "black" and y >= 2 and y <= 5:
+                    if self.colour == "white" and y <= 5 and y >= 2:
+                        # print(self.colour)
+                        if self.board[y][x].piece == UNOCCUPIED:
+                            # print("test in moves_placing when colour == white and y <=5")
+                            # print(self.board[y][x].piece)
+                            # print(self.board[y][x].piece)
+                            moves.append((x, y))
+                    if self.colour == "black" and y >= 2 and y <= 5:
 
-                   # print("test in moves_placing when colour == black and y >=2")
-                    if self.board[y][x].piece == UNOCCUPIED:
-                       # print(self.board[y][x].piece)
-                        moves.append((x, y))
-        #print("list of possible moves: " + str(moves))
-        random.shuffle(moves)
-        return moves
+                        # print("test in moves_placing when colour == black and y >=2")
+                        if self.board[y][x].piece == UNOCCUPIED:
+                            # print(self.board[y][x].piece)
+                            moves.append((x, y))
+            # print("list of possible moves: " + str(moves))
+            random.shuffle(moves)
+            return moves
+        if self.phase == 'moving':
+            moves = []
+            return moves
+
+
 
 
 # --------------------------------------------------------------------------- #
