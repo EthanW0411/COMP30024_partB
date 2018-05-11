@@ -1,5 +1,5 @@
 from copy import deepcopy
-from random import shuffle
+import random
 
 
 # --------------------------------------------------------------------------- #
@@ -133,6 +133,9 @@ class GameBoard:
         :param action: the opponent's recent action
         """
         if self.phase == 'placing':
+            if self.turns == 24:
+                self.phase = 'moving'
+                self.turns = 0
             x, y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
@@ -143,6 +146,35 @@ class GameBoard:
             c, d = action_to
             self.board[b][a].piece = UNOCCUPIED
             self.board[d][c].piece = self.opponent()
+
+    def shrink_board(self):
+        """
+        Shrink the board, eliminating all pieces along the outermost layer,
+        and replacing the corners.
+
+        This method can be called up to two times only.
+        """
+        s = self.n_shrinks  # number of shrinks so far, or 's' for short
+        # Remove edges
+        for i in range(s, 8 - s):
+            for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
+                x, y = square
+                piece = self.board[y][x].piece
+                if piece in self.pieces:
+                    self.pieces[piece] -= 1
+                self.board[y][x] = ' '
+
+        # we have now shrunk the board once more!
+        self.n_shrinks = s = s + 1
+
+        # replace the corners (and perform corner elimination)
+        for corner in [(s, s), (s, 7 - s), (7 - s, 7 - s), (7 - s, s)]:
+            x, y = corner
+            piece = self.board[y][x].piece
+            if piece in self.pieces:
+                self.pieces[piece] -= 1
+            self.board[y][x] = 'X'
+            self.eliminate_about(corner)
 
     def update_action_in_search(self, action):
         """
@@ -355,6 +387,7 @@ class GameBoard:
     def moves_placing(self):
         """
         :return list of possible moves in placing phase
+        To do:
         """
 
         #print_board_piece(self.board)
@@ -362,20 +395,21 @@ class GameBoard:
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
 
-                if self.colour == "white" and y <= 5:
+                if self.colour == "white" and y <= 5 and y >= 2:
                     #print(self.colour)
                     if self.board[y][x].piece == UNOCCUPIED:
                         #print("test in moves_placing when colour == white and y <=5")
                        # print(self.board[y][x].piece)
                         #print(self.board[y][x].piece)
                         moves.append((x, y))
-                if self.colour == "black" and y >= 2:
+                if self.colour == "black" and y >= 2 and y <= 5:
 
                    # print("test in moves_placing when colour == black and y >=2")
                     if self.board[y][x].piece == UNOCCUPIED:
                        # print(self.board[y][x].piece)
                         moves.append((x, y))
         #print("list of possible moves: " + str(moves))
+        random.shuffle(moves)
         return moves
 
 
@@ -563,7 +597,7 @@ class AlphaBeta:
 
 # --------------------------------------------------------------------------- #
 
-# NODE STRUCTURE FOR TREE
+# NODE STRUCTURE FOR TREE USED IN ALPHABETA PRUNING
 
 class Node:
     def __init__(self, value, game_board, level, move, colour):
