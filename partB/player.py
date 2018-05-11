@@ -421,7 +421,6 @@ class GameBoard:
         :return list of possible moves in placing phase
         To do:
         """
-
         #print_board_piece(self.board)
         if self.phase == 'placing':
             moves = []
@@ -445,7 +444,32 @@ class GameBoard:
             random.shuffle(moves)
             return moves
         if self.phase == 'moving':
+            print("The move has been called in the moves_placing function")
             moves = []
+            if self.colour == 'white':
+                for white_piece in self.white_pieces:
+                    x = white_piece.x
+                    y = white_piece.y
+                    if self.within_board(x + 1, y):
+                        if self.board[x + 1][y].piece == UNOCCUPIED:
+                            moves.append((x, y), (x+1, y))
+                        elif self.within_board(x+2, y) and self.board[x+2][y] == UNOCCUPIED:
+                            moves.append((x, y), (x+2, y))
+                    if self.within_board(x - 1, y):
+                        if self.board[x - 1][y].piece == UNOCCUPIED:
+                            moves.append((x, y), (x-1, y))
+                        elif self.within_board(x-2, y) and self.board[x-2][y] == UNOCCUPIED:
+                            moves.append((x, y), (x-2, y))
+                    if self.within_board(x, y+1):
+                        if self.board[x][y+1].piece == UNOCCUPIED:
+                            moves.append((x, y), (x, y+1))
+                        elif self.within_board(x, y+2) and self.board[x][y+2] == UNOCCUPIED:
+                            moves.append((x, y), (x, y+2))
+                    if self.within_board(x, y-1):
+                        if self.board[x][y-1].piece == UNOCCUPIED:
+                            moves.append((x, y), (x, y-1))
+                        elif self.within_board(x, y-2) and self.board[x][y-2] == UNOCCUPIED:
+                            moves.append((x, y), (x, y-2))
             return moves
 
 
