@@ -148,8 +148,8 @@ class GameBoard:
         self.phase = 'placing'
         self.pieces = {WHITE: 0, BLACK: 0}
         self.n_shrinks = 0
-        #self.white_pieces = []
         #self.black_pieces = []
+        #self.white_pieces = []
 
         self.initialize_scoreboard(self.colour)
 
@@ -159,24 +159,35 @@ class GameBoard:
 
         :param action: the opponent's recent action
         """
-        if self.phase == 'placing':
-            x, y = action
+        #if self.phase == 'placing':
+        #   x, y = action
+        #    self.board[y][x].piece = self.opponent()
+        #    self.pieces[self.opponent()] += 1
+        #    '''
+        #                if self.colour == 'white':
+        #        self.black_pieces.append(self.board[y][x].piece)
+        #    if self.colour == 'black':
+        #        self.white_pieces.append(self.board[y][x].piece)
+        #    '''
+
+
+        #if self.phase == 'moving':
+        #    action_from, action_to = action
+        #    a, b = action_from
+        #    c, d = action_to
+        #    self.board[b][a].piece = UNOCCUPIED
+        #    self.board[d][c].piece = self.opponent()
+
+        try:
+            old_x, old_y = action[0]
+            x, y = action[1]
+            self.board[old_y][old_x].piece = UNOCCUPIED
+            self.board[y][x].piece = self.opponent()
+
+        except:
+            x,y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
-            '''
-                        if self.colour == 'white':
-                self.black_pieces.append(self.board[y][x].piece)
-            if self.colour == 'black':
-                self.white_pieces.append(self.board[y][x].piece)
-            '''
-
-
-        if self.phase == 'moving':
-            action_from, action_to = action
-            a, b = action_from
-            c, d = action_to
-            self.board[b][a].piece = UNOCCUPIED
-            self.board[d][c].piece = self.opponent()
 
     def shrink_board(self):
         """
@@ -226,10 +237,14 @@ class GameBoard:
 
         if self.phase == 'moving':
             action_from, action_to = action
+            print("The action from is: %s" %(action_from,))
+            print("The action to is: %s" %(action_to,))
             a, b = action_from
             c, d = action_to
             self.board[b][a].piece = UNOCCUPIED
+            print(self.board[b][a].piece)
             self.board[d][c].piece = self.allies()
+            print(self.board[d][c].piece)
 
 
     def opponent(self):
@@ -405,7 +420,11 @@ class GameBoard:
 
         :param square: the square to look around
         """
-        x, y = square
+        try:
+            x,y = square[1]
+        except:
+            x,y = square
+
         piece = self.board[y][x].piece
         targets = self.targets(piece)
 
