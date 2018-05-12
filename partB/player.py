@@ -146,8 +146,9 @@ class GameBoard:
         self.turns = 0
         self.phase = 'placing'
         self.pieces = {WHITE: 0, BLACK: 0}
-        self.white_pieces = []
-        self.black_pieces = []
+        self.n_shrinks = 0
+        #self.white_pieces = []
+        #self.black_pieces = []
 
         self.initialize_scoreboard(self.colour)
 
@@ -161,10 +162,13 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
-            if self.colour == 'white':
+            '''
+                        if self.colour == 'white':
                 self.black_pieces.append(self.board[y][x].piece)
             if self.colour == 'black':
                 self.white_pieces.append(self.board[y][x].piece)
+            '''
+
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -211,10 +215,13 @@ class GameBoard:
         if self.phase == 'placing':
             x, y = action
             self.board[y][x].piece = self.allies()
-            if self.colour == 'white':
+            '''
+                        if self.colour == 'white':
                 self.white_pieces.append(self.board[y][x])
             if self.colour == 'black':
                 self.white_pieces.append(self.board[y][x])
+            '''
+
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -425,9 +432,11 @@ class GameBoard:
         :return list of possible moves in placing phase
         To do:
         """
+
+        moves = []
         #print_board_piece(self.board)
         if self.phase == 'placing':
-            moves = []
+
             for x in range(INITIAL_BOARD_SIDE):
                 for y in range(INITIAL_BOARD_SIDE):
 
@@ -449,8 +458,51 @@ class GameBoard:
             return moves
         if self.phase == 'moving':
             print("The move has been called in the moves_placing function")
-            moves = []
-            if self.colour == 'white':
+            # check current board size
+            start = self.n_shrinks
+            end = INITIAL_BOARD_SIDE - self.n_shrinks
+
+            # possible move and jump space
+            possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+            for x in range(start, end):
+                for y in range(start, end):
+                    if self.colour == 'white' and self.board[y][x].piece == WHITE:
+                        for dx, dy in possible_moves:
+                            move_to_x, move_to_y = x + dx, y + dy
+                            if self.within_board(move_to_x, move_to_y):
+                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                    #print("add a possible move in white")
+                                    moves.append(((x, y), (move_to_x, move_to_y)))
+                                if self.board[move_to_y][move_to_x].piece in self.pieces:
+                                    #print("check jump in white")
+                                    # check jump
+                                    move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
+                                    #print(str(((x, y), (move_to_x, move_to_y))))
+                                    if self.within_board(move_to_x, move_to_y) \
+                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                        #print("add a possible jump in white")
+                                        moves.append(((x, y), (move_to_x, move_to_y)))
+
+                    if self.colour == 'black' and self.board[y][x].piece == BLACK:
+                        for dx, dy in possible_moves:
+                            move_to_x, move_to_y = x + dx, y + dy
+                            if self.within_board(move_to_x, move_to_y):
+                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                    #print("add a possible move in black")
+                                    moves.append(((x, y), (move_to_x, move_to_y)))
+                                if self.board[move_to_y][move_to_x].piece in self.pieces:
+                                    # check jump
+                                    move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
+                                    if self.within_board(move_to_x, move_to_y) \
+                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                        #print("add a possible jump in black")
+                                        moves.append(((x, y), (move_to_x, move_to_y)))
+            #print(str(moves))
+            random.shuffle(moves)
+            return moves
+
+            '''
+                        if self.colour == 'white':
                 for white_piece in self.white_pieces:
                     x = white_piece.x
                     y = white_piece.y
@@ -474,7 +526,9 @@ class GameBoard:
                             moves.append((x, y), (x, y-1))
                         elif self.within_board(x, y-2) and self.board[x][y-2] == UNOCCUPIED:
                             moves.append((x, y), (x, y-2))
-            return moves
+            '''
+
+
 
 
 
