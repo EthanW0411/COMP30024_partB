@@ -499,7 +499,7 @@ class GameBoard:
                                         and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
                                         #print("add a possible jump in black")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
-            #print(str(moves))
+            print(str(moves))
             random.shuffle(moves)
             return moves
 
