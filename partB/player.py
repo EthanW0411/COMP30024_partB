@@ -215,9 +215,9 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.allies()
             if self.colour == 'white':
-                self.white_pieces.append(self.board[y][x].piece)
+                self.white_pieces.append(self.board[y][x])
             if self.colour == 'black':
-                self.white_pieces.append(self.board[y][x].piece)
+                self.white_pieces.append(self.board[y][x])
 
         if self.phase == 'moving':
             action_from, action_to = action
@@ -287,7 +287,7 @@ class GameBoard:
 
         for y in range(INITIAL_BOARD_SIDE):
             for x in range(INITIAL_BOARD_SIDE):
-                if colour == "white"  and x in [0, 2, 4, 6, 7] and y in [2, 3]:
+                if colour == "white" and x in [0, 2, 4, 6, 7] and y in [2, 3]:
                     """
                     3: traps on second defensive line
                     2: two corners on best defensive line
@@ -350,12 +350,12 @@ class GameBoard:
         :param piece: the type of piece ('B', 'W', or 'X')
         :return: the set of piece types that a piece of this type can eliminate
         """
-        if piece == '@':
-            return {'O'}
-        elif piece == '0':
-            return {'@'}
-        elif piece == 'X':
-            return {'O', '@'}
+        if piece == BLACK:
+            return {WHITE}
+        elif piece == WHITE:
+            return {BLACK}
+        elif piece == CORNER:
+            return {WHITE, BLACK}
         return set()
 
     def surrounded(self, x, y, dx, dy):
@@ -408,14 +408,14 @@ class GameBoard:
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
                     #print(self.board[target_y][target_x].piece + " at " + "(%d, %d)" % (target_y, target_x))
-                    self.board[target_y][target_x].piece = '-'
+                    self.board[target_y][target_x].piece = UNOCCUPIED
                     self.pieces[targetval] -= 1
 
         # Check if the current piece is surrounded and should be eliminated
         if piece in self.pieces:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
                 #print(self.board[y][x].piece + " at " + "(%d, %d)" % (y, x))
-                self.board[y][x].piece = '-'
+                self.board[y][x].piece = UNOCCUPIED
                 self.pieces[piece] -= 1
 
     def moves_placing(self):
