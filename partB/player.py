@@ -58,12 +58,12 @@ class Player:
         :param action: the opponent's recent action
         :return:
         """
-        #print("-----------------------------------------update player---------------------------------------------")
+        print("-----------------------------------------update player---------------------------------------------")
         self.game.update_action(action)
         self.game.eliminate_about(action)
-        #print("Player own game board updated: " + self.colour)
-        #print_board_piece(self.game.board)
-        #print("-----------------------------------------finish update---------------------------------------------")
+        print("Player own game board updated: " + self.colour)
+        print_board_piece(self.game.board)
+        print("-----------------------------------------finish update---------------------------------------------")
 
     def action(self, turns):
         """
@@ -119,7 +119,7 @@ class Player:
             action = alpha_beta.alpha_beta_search(root)
             self.game.update_action_in_search(action)
             self.game.eliminate_about(action)
-            print("Action: " + str(action))
+            print("Action: " + str(action) + " by " + self.colour)
             return action
 
 
@@ -183,6 +183,7 @@ class GameBoard:
             x, y = action[1]
             self.board[old_y][old_x].piece = UNOCCUPIED
             self.board[y][x].piece = self.opponent()
+            self.pieces[self.opponent()] += 1
 
         except:
             x,y = action
@@ -204,7 +205,7 @@ class GameBoard:
                 piece = self.board[y][x].piece
                 if piece in self.pieces:
                     self.pieces[piece] -= 1
-                self.board[y][x] = ' '
+                self.board[y][x].piece = ' '
 
         # we have now shrunk the board once more!
         self.n_shrinks = s = s + 1
@@ -215,7 +216,7 @@ class GameBoard:
             piece = self.board[y][x].piece
             if piece in self.pieces:
                 self.pieces[piece] -= 1
-            self.board[y][x] = 'X'
+            self.board[y][x].piece = 'X'
             self.eliminate_about(corner)
 
     def update_action_in_search(self, action):
@@ -227,6 +228,7 @@ class GameBoard:
         if self.phase == 'placing':
             x, y = action
             self.board[y][x].piece = self.allies()
+            self.pieces[self.allies()] += 1
             '''
                         if self.colour == 'white':
                 self.white_pieces.append(self.board[y][x])
@@ -236,15 +238,17 @@ class GameBoard:
 
 
         if self.phase == 'moving':
-            action_from, action_to = action
-            print("The action from is: %s" %(action_from,))
-            print("The action to is: %s" %(action_to,))
+            action_from = action[0]
+            action_to = action[1]
+            #print("The action from is: %s" %(action_from,))
+            #print("The action to is: %s" %(action_to,))
             a, b = action_from
             c, d = action_to
             self.board[b][a].piece = UNOCCUPIED
-            print(self.board[b][a].piece)
+            #print(self.board[b][a].piece)
             self.board[d][c].piece = self.allies()
-            print(self.board[d][c].piece)
+            self.pieces[self.allies()] += 1
+            #print(self.board[d][c].piece)
 
 
     def opponent(self):
@@ -290,11 +294,14 @@ class GameBoard:
         """
 
         # update game phase
-        if turns == 0 and self.turns != 0 and self.phase == 'placing':
+        if turns in [0, 1] and self.turns != 0 and self.phase == 'placing':
             self.phase = 'moving'
 
-            #print(self.phase)
+            print(self.phase + " in " + self.colour + "---------------------------------------------")
 
+        # shrink board
+        if (turns in [129, 193] and self.colour == 'black') or (turns in [128, 192] and self.colour == 'white'):
+            self.shrink_board()
         self.turns = turns
         #print('Turns: ' + str(self.turns) + self.colour)
 
@@ -478,7 +485,7 @@ class GameBoard:
             return moves
 
         if self.phase == 'moving':
-            print("The move has been called in the moves_placing function")
+            #print("The move has been called in the moves_placing function")
             # check current board size
             start = self.n_shrinks
             end = INITIAL_BOARD_SIDE - self.n_shrinks
@@ -518,36 +525,10 @@ class GameBoard:
                                         and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
                                         #print("add a possible jump in black")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
-            print(str(moves))
+            #print(str(moves))
             random.shuffle(moves)
             return moves
 
-            '''
-                        if self.colour == 'white':
-                for white_piece in self.white_pieces:
-                    x = white_piece.x
-                    y = white_piece.y
-                    if self.within_board(x + 1, y):
-                        if self.board[x + 1][y].piece == UNOCCUPIED:
-                            moves.append((x, y), (x+1, y))
-                        elif self.within_board(x+2, y) and self.board[x+2][y] == UNOCCUPIED:
-                            moves.append((x, y), (x+2, y))
-                    if self.within_board(x - 1, y):
-                        if self.board[x - 1][y].piece == UNOCCUPIED:
-                            moves.append((x, y), (x-1, y))
-                        elif self.within_board(x-2, y) and self.board[x-2][y] == UNOCCUPIED:
-                            moves.append((x, y), (x-2, y))
-                    if self.within_board(x, y+1):
-                        if self.board[x][y+1].piece == UNOCCUPIED:
-                            moves.append((x, y), (x, y+1))
-                        elif self.within_board(x, y+2) and self.board[x][y+2] == UNOCCUPIED:
-                            moves.append((x, y), (x, y+2))
-                    if self.within_board(x, y-1):
-                        if self.board[x][y-1].piece == UNOCCUPIED:
-                            moves.append((x, y), (x, y-1))
-                        elif self.within_board(x, y-2) and self.board[x][y-2] == UNOCCUPIED:
-                            moves.append((x, y), (x, y-2))
-            '''
 
 
 
