@@ -139,8 +139,8 @@ class GameBoard:
                       for _ in range(INITIAL_BOARD_SIDE)]
         for square in INITIAL_CORNER_LOCATION:
             x, y = square
-            self.board[y][x].set_piece(CORNER)
-            self.board[y][x].set_value(CORNER_VALUE)
+            self.board[y][x].piece = CORNER
+            self.board[y][x].value = CORNER_VALUE
 
         # tracking progress through game phases
         self.turns = 0
@@ -283,7 +283,7 @@ class GameBoard:
         """
         for square in INITIAL_BY_CORNER_LOCATION:
             x, y = square
-            self.board[y][x].set_value(BY_CORNER_VALUE)
+            self.board[y][x].value = BY_CORNER_VALUE
 
         for y in range(INITIAL_BOARD_SIDE):
             for x in range(INITIAL_BOARD_SIDE):
@@ -292,7 +292,7 @@ class GameBoard:
                     3: traps on second defensive line
                     2: two corners on best defensive line
                     """
-                    self.board[y][x].set_value(200)
+                    self.board[y][x].value = 200
 
                 if colour == "black" and x in [0, 2, 4, 6, 7] and y in [5]:
                     """
@@ -301,9 +301,9 @@ class GameBoard:
                     """
                     # check traps on (0,3) and (7,3)
                     if x == 3 and self.board[y][x].is_white():
-                        self.board[y][x-1].set_value(-1)
+                        self.board[y][x-1].value = -1
                         break
-                    self.board[y][x].set_value(200)
+                    self.board[y][x].value = 200
         print_board(self.board)
 
 
@@ -335,7 +335,7 @@ class GameBoard:
         :return: set of piece types that can eliminate a piece of this type
         """
         if piece == BLACK:
-            return {CORNER, WHITE}
+            return {WHITE, CORNER}
         elif piece == WHITE:
             return {BLACK, CORNER}
         return set()
@@ -374,15 +374,15 @@ class GameBoard:
         xa, ya = x + dx, y + dy
         firstval = None
         if self.within_board(xa, ya):
-            firstval = self.board[ya][xa].get_piece()
+            firstval = self.board[ya][xa].piece
 
         xb, yb = x - dx, y - dy
         secondval = None
         if self.within_board(xb, yb):
-            secondval = self.board[yb][xb].get_piece()
+            secondval = self.board[yb][xb].piece
 
         # If both adjacent squares have enemies then this piece is surrounded!
-        piece = self.board[y][x].get_piece()
+        piece = self.board[y][x].piece
         enemies = self.enemies(piece)
         return (firstval in enemies and secondval in enemies)
 
@@ -407,12 +407,14 @@ class GameBoard:
                 targetval = self.board[target_y][target_x].piece
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
+                    #print(self.board[target_y][target_x].piece + " at " + "(%d, %d)" % (target_y, target_x))
                     self.board[target_y][target_x].piece = '-'
                     self.pieces[targetval] -= 1
 
         # Check if the current piece is surrounded and should be eliminated
         if piece in self.pieces:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
+                #print(self.board[y][x].piece + " at " + "(%d, %d)" % (y, x))
                 self.board[y][x].piece = '-'
                 self.pieces[piece] -= 1
 
@@ -486,18 +488,6 @@ class Square:
         self.value = INITIAL_VALUE
         self.x = x
         self.y = y
-
-    def set_value(self, value):
-        self.value = value
-
-    def set_piece(self, piece):
-        self.piece = piece
-
-    def get_piece(self):
-        return self.piece
-
-    def get_value(self):
-        return self.value
 
     def is_white(self):
         return self.piece == WHITE
