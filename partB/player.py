@@ -113,6 +113,7 @@ class Player:
             print("Action: " + str(action))
             return action
         if self.game.phase == 'moving':
+            print("moving phase has occured")
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
@@ -443,6 +444,7 @@ class GameBoard:
             # print("list of possible moves: " + str(moves))
             random.shuffle(moves)
             return moves
+
         if self.phase == 'moving':
             print("The move has been called in the moves_placing function")
             moves = []
