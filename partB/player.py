@@ -252,8 +252,9 @@ class GameBoard:
             #print(self.board[b][a].piece)
             self.board[d][c].piece = self.allies()
             self.pieces[self.allies()] += 1
-            self.refresh_scoreboard()
             #print(self.board[d][c].piece)
+            self.refresh_scoreboard()
+
 
 
     def opponent(self):
@@ -561,7 +562,8 @@ class GameBoard:
                             if self.within_board(x + dx, y + dy):
                                 if self.board[y + dy][x + dx].piece == UNOCCUPIED:
                                     if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE:
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE or\
+                                                self.board[y + (-1*dy)][x + (-1*dx)].piece == CORNER:
                                             self.board[y + dy][x + dx].value = 150
                                         if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
                                             self.board[y+dy][x+dx].value = 50
@@ -585,7 +587,8 @@ class GameBoard:
                             if self.within_board(x + dx, y + dy):
                                 if self.board[y + dy][x + dx].piece == UNOCCUPIED:
                                     if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK:
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK or \
+                                                self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
                                             self.board[y + dy][x + dx].value = 150
                                         if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
                                             self.board[y + dy][x + dx].value = 50
