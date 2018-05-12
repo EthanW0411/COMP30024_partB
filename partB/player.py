@@ -190,6 +190,10 @@ class GameBoard:
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
 
+        # shrink board
+        if (self.turns in [127, 191] and self.colour == 'black') or (self.turns in [126, 190] and self.colour == 'white'):
+            self.shrink_board()
+
     def shrink_board(self):
         """
         Shrink the board, eliminating all pieces along the outermost layer,
@@ -297,11 +301,9 @@ class GameBoard:
         if turns in [0, 1] and self.turns != 0 and self.phase == 'placing':
             self.phase = 'moving'
 
-            print(self.phase + " in " + self.colour + "---------------------------------------------")
+            #print(self.phase + " in " + self.colour + "---------------------------------------------")
 
-        # shrink board
-        if (turns in [129, 193] and self.colour == 'black') or (turns in [128, 192] and self.colour == 'white'):
-            self.shrink_board()
+
         self.turns = turns
         #print('Turns: ' + str(self.turns) + self.colour)
 
