@@ -347,6 +347,7 @@ class _Game:
                 # time to enter the moving phase!
                 self.phase = 'moving'
                 self.turns = 0
+                print("In referee, getting into moving phase")
         if self.phase == 'moving':
             self._check_win()
             if self.phase != 'completed' and self.turns in [128, 192]:

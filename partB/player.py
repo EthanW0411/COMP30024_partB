@@ -58,12 +58,12 @@ class Player:
         :param action: the opponent's recent action
         :return:
         """
-        print("-----------------------------------------update player---------------------------------------------")
+        #print("-----------------------------------------update player---------------------------------------------")
         self.game.update_action(action)
         self.game.eliminate_about(action)
-        print("Player own game board updated: " + self.colour)
-        print_board_piece(self.game.board)
-        print("-----------------------------------------finish update---------------------------------------------")
+        #print("Player own game board updated: " + self.colour)
+        #print_board_piece(self.game.board)
+        #print("-----------------------------------------finish update---------------------------------------------")
 
     def action(self, turns):
         """
@@ -158,9 +158,6 @@ class GameBoard:
         :param action: the opponent's recent action
         """
         if self.phase == 'placing':
-            if self.turns == 24:
-                self.phase = 'moving'
-                self.turns = 0
             x, y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
@@ -268,11 +265,16 @@ class GameBoard:
 
         :param turns: the number of turns that have taken place since the start of the current game phase
         """
-        self.turns = turns
 
         # update game phase
-        if self.phase == 'placing' and turns > 24:
+        if turns == 0 and self.turns != 0 and self.phase == 'placing':
             self.phase = 'moving'
+
+            #print(self.phase)
+
+        self.turns = turns
+        #print('Turns: ' + str(self.turns) + self.colour)
+
 
 
     def initialize_scoreboard(self, colour):
