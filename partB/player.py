@@ -115,7 +115,6 @@ class Player:
             print("Action: " + str(action))
             return action
         if self.game.phase == 'moving':
-            print("moving phase has occured")
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
@@ -174,6 +173,7 @@ class GameBoard:
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
 
+        self.refresh_scoreboard()
         # shrink board
         if (self.turns in [127, 191] and self.colour == 'black') or \
                 (self.turns in [126, 190] and self.colour == 'white'):
@@ -207,7 +207,7 @@ class GameBoard:
             piece = self.board[y][x].piece
             if piece in self.pieces:
                 self.pieces[piece] -= 1
-            self.board[y][x].piece = 'X'
+            self.board[y][x].piece = CORNER
             self.eliminate_about(corner)
 
     def update_action_in_search(self, action):
@@ -225,8 +225,8 @@ class GameBoard:
         if self.phase == 'moving':
             action_from = action[0]
             action_to = action[1]
-            #print("The action from is: %s" %(action_from,))
-            #print("The action to is: %s" %(action_to,))
+            # print("The action from is: %s" %(action_from,))
+            # print("The action to is: %s" %(action_to,))
             a, b = action_from
             c, d = action_to
             self.board[b][a].piece = UNOCCUPIED
@@ -234,6 +234,8 @@ class GameBoard:
             self.board[d][c].piece = self.allies()
             self.pieces[self.allies()] += 1
             #print(self.board[d][c].piece)
+            self.refresh_scoreboard()
+
 
 
 
@@ -530,6 +532,66 @@ class GameBoard:
             random.shuffle(moves)
             return moves
 
+    def refresh_scoreboard(self):
+        """
+        This scoreboard incentivize the AI to have a more defensive approach in playing the game
+
+        :return: Does not return anything, just updates scoreboard
+        """
+        start = self.n_shrinks
+        end = INITIAL_BOARD_SIDE - self.n_shrinks
+        possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        for x in range(start, end):
+            for y in range(start, end):
+                # This looks at the scoreboard when the player is white
+                if self.colour == 'white':
+                    # Defensive behaviour
+                    if self.board[y][x].piece == WHITE:
+                        for dx, dy in possible_moves:
+                            if self.within_board(x + dx, y + dy):
+                                if self.board[y + dy][x + dx].piece == BLACK:
+                                    if self.within_board(x + (-1*dx), y + (-1*dy)):
+                                        if self.board[y + (-1*dy)][x + (-1*dx)].piece == UNOCCUPIED:
+                                            self.board[y + (-1*dy)][x + (-1*dx)].value = 300
+                                        if self.board[y + (-1*dy)][x + (-1*dx)].piece == WHITE:
+                                            self.board[y + (-1*dy)][x + (-1*dx)].value = 400
+                    # Aggressive behaviour
+                    if self.board[y][x].piece == BLACK:
+                        for dx, dy in possible_moves:
+                            if self.within_board(x + dx, y + dy):
+                                if self.board[y + dy][x + dx].piece == UNOCCUPIED:
+                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE or\
+                                                self.board[y + (-1*dy)][x + (-1*dx)].piece == CORNER:
+                                            self.board[y + dy][x + dx].value = 150
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                            self.board[y+dy][x+dx].value = 50
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
+
+                # This looks at the scoreboard when the player is black
+                if self.colour == 'black':
+                    # Defensive behaviour
+                    if self.board[y][x].piece == BLACK:
+                        for dx, dy in possible_moves:
+                            if self.within_board(x + dx, y + dy):
+                                if self.board[y + dy][x + dx].piece == WHITE:
+                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK:
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
+                    # Aggressive behaviour
+                    if self.board[y][x].piece == WHITE:
+                        for dx, dy in possible_moves:
+                            if self.within_board(x + dx, y + dy):
+                                if self.board[y + dy][x + dx].piece == UNOCCUPIED:
+                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK or \
+                                                self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
+                                            self.board[y + dy][x + dx].value = 150
+                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                            self.board[y + dy][x + dx].value = 50
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
 
 
 
