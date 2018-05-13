@@ -4,7 +4,7 @@ Project done by:
 Alexandre Hurbe
 Lianming Wu
 
-For this part we chose to implement alpha beta pruning as our algorithm. This would allow our A.I to see a few steps ahead and help increase our chances of winning.
+For this part of the assignment we chose to implement alpha beta pruning as our algorithm. This would allow our A.I to see a few steps ahead and help increase our chances of winning. Alpha beta pruning has a time complexity of O(b^(d/2)) in a best case. We thought this would be a desired algorithm as it would be able to look several moves ahead and also base its final solution on the state of the game (such as how many pieces we have left and the opponent) and not just the most optimal path. Additionally, thanks to the design of alpha beta pruning not all moves will have to be calculated which will be beneficial to us due to the time limit factor of this assignment.
 
 Placing Phase:
 
@@ -19,283 +19,34 @@ Placing Phase:
 6 - - - - - - - - B
 7 X - - - - - - X B
 
-White has the top part of the board and have exclusive rights to place along row 0 and row 1. Whereas, Black has the exclusive rights to place along row 6 and row 7. Our strategy for the placing phase was to neglect either row 0 or row 7 (depending on our player's colour) as placing on these rows will not provide much benefit during the moving phase. Additionally, this came with the benefit of speeding up our alpha beta pruning as there were less potnetnial moves the algorithm had to compute. This drastically sped up the time as compared when we did include it in the first place.
+White has the top part of the board and have exclusive rights to place along row 0 and row 1. Whereas, Black has the exclusive rights to place along row 6 and row 7. Our strategy for the placing phase was to neglect either row 0 or row 7 (depending on our player's colour) as placing on these rows will not provide much benefit during the moving phase. Additionally, this came with the benefit of speeding up our alpha beta pruning as there were less potential moves the algorithm had to compute. This drastically sped up the time as compared when we did include it in the first place. We decided that a more defensive approach was most optimal during the placing phase as having the most pieces alive will be very beneficial during the moving phase as it would allow the algorithm to compute more potential moves. Thus, we hard coded the first few turns to make sure that the AI would select the more desired formation. It also allowed us to save time on the first few moves so that we had more time to compute moves later on.
 
-Hypothesis: The best first placing for White is (x1,y1) = (0,5) and (x2,y2) = (7,5)
-
-Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 - - - - - - - -
-4 - - - - - - - -
-5 W - - - - - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-Similarly for Black:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 B - - - - - - B
-3 - - - - - - - -
-4 - - - - - - - -
-5 - - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-The reason:
-In the placing, our goal is not to lose any pieces
-and then try to kill as many enemies as possible.
-So if we could place pieces like shown above. we get
-benefit of getting into enemies' back.
-Then we could kill like thi		s (Assume we are White):
-
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 - - - - - - - -
-4 - - - - - - - -
-5 W - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B 
-
-If black want to kill our first piece, Black has to place a place
-at (x,y) = (0,4)
-
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 - - - - - - - -
-4 B - - - - - - -
-5 W - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-But we can place another piece at (x,y) = (0,3) to kill the Black piece.
-
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 W - - - - - - -
-4 B - - - - - - -
-5 W - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-Conclusion: There is absolute benefit to make us place at these square.
-So the best case for beginning four placings are like this(White starts first):
-  0 1 2 3 4 5 6 7
+Turn 2 (White's Perspective)
+ 0 1 2 3 4 5 6 7
 0 X - - - - - - X W
 1 - - - - - - - - W
 2 W - - - - - - W
-3 - - B - - - - -
-4 - - - - - - - -
-5 W - B - B - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-QUESTION: What if our enemy predict we are going to place these places?
-          Like our enemy(Black) starts first and places like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 - - - - - - - -
-4 B - - - - - - -
-5 - - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
-
-          Black is waiting for us place a piece at (0,5) then it can place at
-          (0,6) to kill us.
-
-Answer: We still should stay in your plan, but take the absolute benefit
-        square on the opposite side. Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 - - - - - - - -
-4 B - - - - - - -
-5 - - - - - - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-Reason: If Black places at (0,4), we can place on another side, at (7,5).
-        So even Black starts first, we still can get 2 out 4 of these benefit
-        square.
-        And another worse case is that Black places at (0,4) first,
-        and we still place a white piece at (0,5). Although Black can kill
-        the white at (0,5), we can place another white piece at (0,5)
-        and take that square back and kill the black piece at (0,6) since
-        we have the priority to kill first in our turn.BUT, in fact, this is
-        really bad for us. Since Black starts first, Black kill a white piece
-        before we give a revenge always. So we will end up like this:
-        B
-        -
-        B
-        X
-        and we have one white piece in your hand. But since we have less 2
-        pieces first, we lose the game.
-
-        Or we can place a white at (0,3). At this case, Black can place
-        a piece at (0,5) to avoid getting both of blacks get killed.
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 W - - - - - - -
-4 B - - - - - - -
-5 - - - - - - - -
-6 B - - - - - - - B
-7 X - - - - - - X B
-        BUT, a smarter way for black is to place at (0,2) to have a absolute
-        benefit square and also kill the white piece at (0,3).
-QUESTION: What if Black set a trap on one of these two absolute benefit square?
-          Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 - - - - - - - -
-3 B - - - - - - -
-4 - - - - - - - -
-5 - - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
-Answer: That's a bad placing for Black absolutely.
-Reason: We still can place at (0,2) since Black can not across row 2.
-Conclusion:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
-2 D - - - - - - D
 3 - - - - - - - -
 4 - - - - - - - -
-5 O - - - - - - O
+5 B - - - - - - -
 6 - - - - - - - - B
 7 X - - - - - - X B
-            D,D,O,O are four absolute benefit squares.
-            In White's perspective:
-                D means defensive absolute benefit squares, since Black can not
-                set a trap on it.
-                O means offensive absolute benefit squares, since White get huge
-                benefit for kill blacks in both placing and moving phase.
-            There are four absolute benefit square we need to occupy in the
-            beginning of first four turns, and the worst case is we keeping
-            going to Black's trap at (0,4) and lose the game.
-            The average case is we take two out of four of them.
-            The best case is we have all of them.
-            Since Black's trap is quite obvious, we can predict it. The worse
-            case we expect in reality is two out of four of them.
-            Or we can become the predictor to set a trap, if in luck, we win
-            the game in placing phase.
 
-                        After The First Four Placings
-
-Assume: We have the average case, two out of four of them.
-        In White's perspective:
-
-  0 1 2 3 4 5 6 7
+Turn 3 (Black's Perspective)
+ 0 1 2 3 4 5 6 7
 0 X - - - - - - X W
 1 - - - - - - - - W
-2 B - - - - - - B best defensive line
-3 - - - - - - - - second defensive line
-4 - - - - - - - - second offensive line
-5 W - - - - - - W best offensive line
-6 - - - - - - - - B
-7 X - - - - - - X B
-        Best defensive line means if we place whites here except (1,2)
-        and (6,2) closing to benefit squares occupied by Black, We don't need
-        to worry our back. And if a black piece is placed here, we can place
-        a white behind best defensive line to force Black to place a black
-        piece behind the previous black.
-        Like this (Black starts first):
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - W - - W
-2 B - - - - B - B
-3 - - - - - B - -
-4 - - - - - - - -
-5 W - - - - - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-        Now is White's turn, and Black has two black pieces in its offensive
-        line. White has two choices.
-        One is place a piece on its best offensive line on the next column
-        from the blacks on its best offensive line. Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - W - - W
-2 B - - - - B - B
-3 - - - - - B - -
-4 - - - - W - - -
-5 W - - - W - - W
-6 - - - - B - - - B
-7 X - - - - - - X B
-        Another one is placing at White's best defensive line on a column
-        space away from the blacks on its best offensive line. Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - W - - W
-2 B - - W - B - B
-3 - - - - - B - -
-4 - - - - - - - -
-5 W - - - - - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-        But, we need to be aware of the existence of a black piece at (0,2).
-        Placing a white piece at (3,2) will give Black chance to kill whites
-        by using the one at (0,2).
-        Black will place at (2,2) to kill the white piece at (3,2). White can
-        place at (1,2) to kill the black at (2,2). Then, Black will place at
-        (2,2) again to kill the white at (1,2) as a revenge. This ends up like
-        previous situation when Black set a trap, but since we start killing
-        first, we win out of number.
-Note: We should never place on second defensive line or second offensive line
-      initiatively since it will give Black a chance place on best defensive
-      or best offensive line at the same column and kill the white easily.
-      Like this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - W - - W
-2 B - - - - B - B
-3 - - - - - B - -
-4 - - - W - - - -
-5 W - - - - - - W
-6 - - - - - - - - B
-7 X - - - - - - X B
-        Black gets a chance to place a piece at (3,5) and forces White to
-        place at (3,3). Then Black can place at (3,2).
-        So placing on second offensive or defensive line intitively give
-        the enemy two pieces on their best offensive and defensive line.
-
-Conclusion: Only place at best line initiatively.
-            If best defensive line, a column space away.
-            If best offensive line, next column.
-            Best case for White is this:
-  0 1 2 3 4 5 6 7
-0 X - - - - - - X  W
-1 - - - - - - - -  W
-2 B - - W - W - B
+2 W - - - - - - W
 3 - - - - - - - -
-4 - - W - W - - -
-5 W - W - W - - W
-6 - - B B B B B B  B
-7 X - - - - - - X  B
-
-In sum: There are about 10 squares more valuable than others.
-        We should occupy them as early as possible by using heuristic
-        function. And then trying to kill blacks.
-
+4 - - - - - - - -
+5 B - - - - - - B
+6 - - - - - - - - B
+7 X - - - - - - X B
 
 
 The Movement phase:
-  During the movement phase our algorithm would look at each piece and evaluate the next three moves. This would help us plan further and come up with the best possible move. During each tested move, the algorithm would also refresh the scoreboard to see what would be the next best possible move. After reaching the third move in a tested path, the algorithm would then evaluate the stae of the game and return a score associated with it.
+  During the movement phase our algorithm would look at each piece and evaluate the next three moves. This would help us plan further and come up with the best possible move. During each tested move, the algorithm would also refresh the scoreboard to see what would be the next best possible move. After reaching the third move in a tested path, the algorithm would then evaluate the state of the game and return a score associated with it. Additionally, when evaluating each move, the scoreboard is updated so that the next move can be more optimal. The function also looks at when the board is about to shrink and predicts the necessary moves to make sure as many pieces stay alive.However, due to the fact the algorithm would only look a few steps forward at a time if many pieces were bundled up together it would not be able to see how to get them out all alive.
 
-The scoreboard function was used during the movement phase, the function valued more defensive behaviour as opposed to aggressive behaviour that would eventually lead to losing more pieces. The scoreboard function will initially look at its own pieces and see if any can be potentially killed. If so, it would then find the position required to protect that piece. That position will be valued highly to ensure that a piece would move there to be protected. After checking all its own pieces, the scoreboard will look at the opponent's pieces and see what could be killed. Additionally, the scoreboard will try to encourage the pieces to move away from the border of the map as it approaches shrinking. 
+As the board continues to shrink there are less potential moves to calculate and maybe even less pieces to move, thus during the shrinkage we will increase the depth of our alpha beta pruning allowing to calculate even more moves ahead.
 
-During the final evaluation of the search, the algorithm will look at its own pieces and see what their score is on that grid and add it up. It will also look at the opponent's pieces and minus off points for each alive and the value of that grid they are on.
+During the final evaluation of the search, the algorithm will look at its own pieces and see what their score is on that grid and add it up. It will also look at the opponent's pieces and minus off points for each alive and the value of that grid they are on. The function looked at what value the square was on and added a 100 to it and multiplied it by a factor of 1.2 to help increase the discrapencies between good moves and average moves.

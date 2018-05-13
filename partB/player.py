@@ -96,19 +96,43 @@ class Player:
                 self.game.eliminate_about(action)
                 return action
             if turns == 1:
-                action = (7, 5)
-                self.game.update_action_in_search(action)
-                self.game.eliminate_about(action)
+                if self.game.board[5][7].piece == UNOCCUPIED:
+                    action = (7, 5)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                else:
+                    root = Node(None, self.game, 1, None, self.colour)
+                    alpha_beta = AlphaBeta(None)
+                    action = alpha_beta.alpha_beta_search(root)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                    print("Action: " + str(action))
                 return action
             if turns == 2:
-                action = (7, 2)
-                self.game.update_action_in_search(action)
-                self.game.eliminate_about(action)
+                if self.game.board[2][7].piece == UNOCCUPIED:
+                    action = (7, 2)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                else:
+                    root = Node(None, self.game, 1, None, self.colour)
+                    alpha_beta = AlphaBeta(None)
+                    action = alpha_beta.alpha_beta_search(root)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                    print("Action: " + str(action))
                 return action
             if turns == 3:
-                action = (0, 5)
-                self.game.update_action_in_search(action)
-                self.game.eliminate_about(action)
+                if self.game.board[5][0].piece == UNOCCUPIED:
+                    action = (0, 5)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                else:
+                    root = Node(None, self.game, 1, None, self.colour)
+                    alpha_beta = AlphaBeta(None)
+                    action = alpha_beta.alpha_beta_search(root)
+                    self.game.update_action_in_search(action)
+                    self.game.eliminate_about(action)
+                    print("Action: " + str(action))
                 return action
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
@@ -117,6 +141,7 @@ class Player:
             self.game.eliminate_about(action)
             print("Action: " + str(action))
             return action
+
         if self.game.phase == 'moving':
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
@@ -176,8 +201,6 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
-
-
 
         self.update_scoreboard()
 
