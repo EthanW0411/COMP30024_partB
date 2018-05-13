@@ -149,8 +149,8 @@ class GameBoard:
         self.phase = 'placing'
         self.pieces = {WHITE: 0, BLACK: 0}
         self.n_shrinks = 0
-        #self.black_pieces = []
-        #self.white_pieces = []
+        self.start_prediction = False
+
 
         self.initialize_scoreboard(self.colour)
 
@@ -284,8 +284,20 @@ class GameBoard:
         # update game phase
         if turns in [0, 1] and self.turns != 0 and self.phase == 'placing':
             self.phase = 'moving'
-
             #print(self.phase + " in " + self.colour + "---------------------------------------------")
+
+        if self.colour == 'white':
+            if 119 < self.turns < 126 or 182 < self.turns < 190:
+                print("Shrink prediction!")
+                shrink_prediction = True
+            else:
+                shrink_prediction = False
+        else:
+            if 120 < self.turns < 127 or 183 < self.turns < 191:
+                print("Shrink prediction!")
+                shrink_prediction = True
+            else:
+                shrink_prediction = False
 
 
         self.turns = turns
@@ -532,66 +544,115 @@ class GameBoard:
             random.shuffle(moves)
             return moves
 
-    def refresh_scoreboard(self):
+    def refresh_scoreboard(self, node_level=None):
         """
         This scoreboard incentivize the AI to have a more defensive approach in playing the game
 
         :return: Does not return anything, just updates scoreboard
         """
-        start = self.n_shrinks
-        end = INITIAL_BOARD_SIDE - self.n_shrinks
-        possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-        for x in range(start, end):
-            for y in range(start, end):
-                # This looks at the scoreboard when the player is white
-                if self.colour == 'white':
-                    # Defensive behaviour
-                    if self.board[y][x].piece == WHITE:
-                        for dx, dy in possible_moves:
-                            if self.within_board(x + dx, y + dy):
-                                if self.board[y + dy][x + dx].piece == BLACK:
-                                    if self.within_board(x + (-1*dx), y + (-1*dy)):
-                                        if self.board[y + (-1*dy)][x + (-1*dx)].piece == UNOCCUPIED:
-                                            self.board[y + (-1*dy)][x + (-1*dx)].value = 300
-                                        if self.board[y + (-1*dy)][x + (-1*dx)].piece == WHITE:
-                                            self.board[y + (-1*dy)][x + (-1*dx)].value = 400
-                    # Aggressive behaviour
-                    if self.board[y][x].piece == BLACK:
-                        for dx, dy in possible_moves:
-                            if self.within_board(x + dx, y + dy):
-                                if self.board[y + dy][x + dx].piece == UNOCCUPIED:
-                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE or\
-                                                self.board[y + (-1*dy)][x + (-1*dx)].piece == CORNER:
-                                            self.board[y + dy][x + dx].value = 150
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                            self.board[y+dy][x+dx].value = 50
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
+        if self.start_prediction:
+            if self.colour == 'white':
+                if (119 < self.turns + node_level) < 126 or (182 < self.turns + node_level < 190):
+                    start = self.n_shrinks
+                    end = INITIAL_BOARD_SIDE - self.n_shrinks
+                    s = self.n_shrinks
+                    for i in range(s, 8 - s):
+                        for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
+                            x, y = square
+                            if self.board[y][x].piece == WHITE:
+                                possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+                                for dx, dy in possible_moves:
+                                    if self.within_board(x + dx, y + dy) and self.board[y+dy][x+dx].piece == UNOCCUPIED:
+                                        self.board[y+dy][x+dx].value = 500
+                                    elif self.within_board(x + dx, y + dy) and \
+                                            (self.board[y+dy][x+dx].piece == WHITE
+                                             or self.board[y+dy][x+dx].piece == BLACK):
+                                        if self.within_board(x + (2*dx), y + (2*dy)) and \
+                                                self.board[y+(2*dy)][x+(2*dx)].piece == UNOCCUPIED:
+                                            self.board[y+(2*dy)][x+(2*dx)] = 500
+            if self.colour == 'black':
+                if (120 < self.turns + node_level) < 127 or (183 < self.turns + node_level < 191):
+                    start = self.n_shrinks
+                    end = INITIAL_BOARD_SIDE - self.n_shrinks
+                    s = self.n_shrinks
+                    for i in range(s, 8 - s):
+                        for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
+                            x, y = square
+                            if self.board[y][x].piece == BLACK:
+                                possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+                                for dx, dy in possible_moves:
+                                    if self.within_board(x + dx, y + dy) and self.board[y+dy][x+dx].piece == UNOCCUPIED:
+                                        self.board[y+dy][x+dx].value = 500
+                                    elif self.within_board(x + dx, y + dy) and \
+                                            (self.board[y+dy][x+dx].piece == WHITE
+                                             or self.board[y+dy][x+dx].piece == BLACK):
+                                        if self.within_board(x + (2*dx), y + (2*dy)) and \
+                                                self.board[y+(2*dy)][x+(2*dx)].piece == UNOCCUPIED:
+                                            self.board[y+(2*dy)][x+(2*dx)] = 500
+            for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
+                x, y = square
+                self.board[y][x].value = -100
+            print_board(self.board)
+        else:
+            refresh_board_no_predict_shrink(self)
 
-                # This looks at the scoreboard when the player is black
-                if self.colour == 'black':
-                    # Defensive behaviour
-                    if self.board[y][x].piece == BLACK:
-                        for dx, dy in possible_moves:
-                            if self.within_board(x + dx, y + dy):
-                                if self.board[y + dy][x + dx].piece == WHITE:
-                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK:
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
-                    # Aggressive behaviour
-                    if self.board[y][x].piece == WHITE:
-                        for dx, dy in possible_moves:
-                            if self.within_board(x + dx, y + dy):
-                                if self.board[y + dy][x + dx].piece == UNOCCUPIED:
-                                    if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK or \
-                                                self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
-                                            self.board[y + dy][x + dx].value = 150
-                                        if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                            self.board[y + dy][x + dx].value = 50
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
+
+def refresh_board_no_predict_shrink(self):
+    start = self.n_shrinks
+    end = INITIAL_BOARD_SIDE - self.n_shrinks
+    possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+    for x in range(start, end):
+        for y in range(start, end):
+            # This looks at the scoreboard when the player is white
+            if self.colour == 'white':
+                # Defensive behaviour
+                if self.board[y][x].piece == WHITE:
+                    for dx, dy in possible_moves:
+                        if self.within_board(x + dx, y + dy):
+                            if self.board[y + dy][x + dx].piece == BLACK:
+                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE:
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
+                # Aggressive behaviour
+                if self.board[y][x].piece == BLACK:
+                    for dx, dy in possible_moves:
+                        if self.within_board(x + dx, y + dy):
+                            if self.board[y + dy][x + dx].piece == UNOCCUPIED:
+                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE or \
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
+                                        self.board[y + dy][x + dx].value = 150
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                        self.board[y + dy][x + dx].value = 50
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
+
+            # This looks at the scoreboard when the player is black
+            if self.colour == 'black':
+                # Defensive behaviour
+                if self.board[y][x].piece == BLACK:
+                    for dx, dy in possible_moves:
+                        if self.within_board(x + dx, y + dy):
+                            if self.board[y + dy][x + dx].piece == WHITE:
+                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK:
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
+                # Aggressive behaviour
+                if self.board[y][x].piece == WHITE:
+                    for dx, dy in possible_moves:
+                        if self.within_board(x + dx, y + dy):
+                            if self.board[y + dy][x + dx].piece == UNOCCUPIED:
+                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK or \
+                                            self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
+                                        self.board[y + dy][x + dx].value = 150
+                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
+                                        self.board[y + dy][x + dx].value = 50
+                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
+
 
 
 
