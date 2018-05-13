@@ -173,7 +173,7 @@ class GameBoard:
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
 
-        self.refresh_scoreboard()
+        #self.refresh_scoreboard()
         # shrink board
         if (self.turns in [127, 191] and self.colour == 'black') or \
                 (self.turns in [126, 190] and self.colour == 'white'):
@@ -234,7 +234,7 @@ class GameBoard:
             self.board[d][c].piece = self.allies()
             self.pieces[self.allies()] += 1
             #print(self.board[d][c].piece)
-            self.refresh_scoreboard()
+            #self.refresh_scoreboard()
 
 
 
