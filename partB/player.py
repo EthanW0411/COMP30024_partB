@@ -592,7 +592,7 @@ class GameBoard:
             for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
                 x, y = square
                 self.board[y][x].value = -100
-            print_board(self.board)
+
         else:
             refresh_board_no_predict_shrink(self)
 
