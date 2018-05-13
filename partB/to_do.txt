@@ -1,4 +1,3 @@
-1. make a update_scoreboard
-    * to update your scoreboard after update_action_in_search and update_action applied
-    * update scoreboard after shrink board
-    * predict shrinking
+1. optimization for alphabeta pruning
+    * search deeper when few pieces left
+    * check Null moves

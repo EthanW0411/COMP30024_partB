@@ -10,7 +10,7 @@ import random
 """initial value for heuristic function"""
 INITIAL_VALUE = 0
 CORNER_VALUE = -2
-BY_CORNER_VALUE = -1
+SURROUNDED_VALUE = -1
 """Constant for game board"""
 
 UNOCCUPIED = '-'
@@ -32,10 +32,12 @@ def print_board(board):
 
 
 def print_board_piece(board):
-    for y in range(INITIAL_BOARD_SIDE):
-        for x in range(INITIAL_BOARD_SIDE):
-            print(board[y][x].piece + ' ', end='')
-        print("\n")
+
+    for x in range(INITIAL_BOARD_SIDE):
+        line = ""
+        for y in range(INITIAL_BOARD_SIDE):
+            line += board[x][y].piece + " "
+        print(line)
 
 
 # PLAYER WHICH RUNS ALPHABETA PRUNING
@@ -158,24 +160,6 @@ class GameBoard:
 
         :param action: the opponent's recent action
         """
-        #if self.phase == 'placing':
-        #   x, y = action
-        #    self.board[y][x].piece = self.opponent()
-        #    self.pieces[self.opponent()] += 1
-        #    '''
-        #                if self.colour == 'white':
-        #        self.black_pieces.append(self.board[y][x].piece)
-        #    if self.colour == 'black':
-        #        self.white_pieces.append(self.board[y][x].piece)
-        #    '''
-
-
-        #if self.phase == 'moving':
-        #    action_from, action_to = action
-        #    a, b = action_from
-        #    c, d = action_to
-        #    self.board[b][a].piece = UNOCCUPIED
-        #    self.board[d][c].piece = self.opponent()
 
         try:
             old_x, old_y = action[0]
@@ -191,8 +175,11 @@ class GameBoard:
 
         self.refresh_scoreboard()
         # shrink board
-        if (self.turns in [127, 191] and self.colour == 'black') or (self.turns in [126, 190] and self.colour == 'white'):
+        if (self.turns in [127, 191] and self.colour == 'black') or \
+                (self.turns in [126, 190] and self.colour == 'white'):
             self.shrink_board()
+
+        self.update_scoreboard()
 
     def shrink_board(self):
         """
@@ -233,12 +220,6 @@ class GameBoard:
             x, y = action
             self.board[y][x].piece = self.allies()
             self.pieces[self.allies()] += 1
-            '''
-                        if self.colour == 'white':
-                self.white_pieces.append(self.board[y][x])
-            if self.colour == 'black':
-                self.white_pieces.append(self.board[y][x])
-            '''
 
 
         if self.phase == 'moving':
@@ -254,6 +235,7 @@ class GameBoard:
             self.pieces[self.allies()] += 1
             #print(self.board[d][c].piece)
             self.refresh_scoreboard()
+
 
 
 
@@ -321,6 +303,25 @@ class GameBoard:
         self.turns = turns
         #print('Turns: ' + str(self.turns) + self.colour)
 
+    def update_scoreboard(self):
+        """
+        update value for each square
+
+        """
+        start = self.n_shrinks
+        end = INITIAL_BOARD_SIDE - self.n_shrinks
+        dirs = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+        for x in range(start, end):
+            for y in range(start, end):
+                if self.board[y][x].piece == CORNER:
+                    self.board[y][x].value = CORNER_VALUE
+                    for dx, dy in dirs:
+                        if self.within_board(x + dx, y + dy):
+                            self.board[y][x].value = SURROUNDED_VALUE
+
+                for dx, dy in dirs:
+                    if self.surrounded(x, y, dx, dy):
+                        self.board[y][x].value = SURROUNDED_VALUE
 
 
     def initialize_scoreboard(self, colour):
@@ -331,26 +332,20 @@ class GameBoard:
         """
         for square in INITIAL_BY_CORNER_LOCATION:
             x, y = square
-            self.board[y][x].value = BY_CORNER_VALUE
+            self.board[y][x].value = SURROUNDED_VALUE
 
         for y in range(INITIAL_BOARD_SIDE):
             for x in range(INITIAL_BOARD_SIDE):
-                if colour == "white" and x in [0, 2, 4, 6, 7] and y in [2, 3]:
+                if colour == "white" and ((x in [0, 2, 4, 6, 7] and y == 2) or (x in [0, 1, 3, 5, 7] and y == 3)) :
                     """
-                    3: traps on second defensive line
                     2: two corners on best defensive line
                     """
                     self.board[y][x].value = 200
 
-                if colour == "black" and x in [0, 2, 4, 6, 7] and y in [5]:
+                if colour == "black" and ((x in [0, 2, 4, 6, 7] and y == 5) or (x in [0, 1, 3, 5, 7] and y == 4)):
                     """
                     5: two corners on best offensive line
-                    3: check traps on second offensive line
                     """
-                    # check traps on (0,3) and (7,3)
-                    if x == 3 and self.board[y][x].is_white():
-                        self.board[y][x-1].value = -1
-                        break
                     self.board[y][x].value = 200
         print_board(self.board)
 
@@ -514,7 +509,8 @@ class GameBoard:
                         for dx, dy in possible_moves:
                             move_to_x, move_to_y = x + dx, y + dy
                             if self.within_board(move_to_x, move_to_y):
-                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
+                                        and self.board[move_to_y][move_to_x].value >= 0:
                                     #print("add a possible move in white")
                                     moves.append(((x, y), (move_to_x, move_to_y)))
                                 if self.board[move_to_y][move_to_x].piece in self.pieces:
@@ -523,7 +519,8 @@ class GameBoard:
                                     move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
                                     #print(str(((x, y), (move_to_x, move_to_y))))
                                     if self.within_board(move_to_x, move_to_y) \
-                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED\
+                                            and self.board[move_to_y][move_to_x].value >= 0:
                                         #print("add a possible jump in white")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
 
@@ -531,14 +528,16 @@ class GameBoard:
                         for dx, dy in possible_moves:
                             move_to_x, move_to_y = x + dx, y + dy
                             if self.within_board(move_to_x, move_to_y):
-                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                if self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
+                                        and self.board[move_to_y][move_to_x].value >= 0:
                                     #print("add a possible move in black")
                                     moves.append(((x, y), (move_to_x, move_to_y)))
                                 if self.board[move_to_y][move_to_x].piece in self.pieces:
                                     # check jump
                                     move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
                                     if self.within_board(move_to_x, move_to_y) \
-                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
+                                        and self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
+                                            and self.board[move_to_y][move_to_x].value >= 0:
                                         #print("add a possible jump in black")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
             #print(str(moves))
@@ -736,6 +735,7 @@ class AlphaBeta:
            # print("State in max_value:" + str(state))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
+            board.shrink_board()
             board.eliminate_about(state)
             next_level = node.level + 1
             next_state = Node(0, board, next_level, state, board.opponent_colour())
@@ -764,6 +764,7 @@ class AlphaBeta:
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
+            board.shrink_board()
             next_level = node.level + 1
             next_state = Node(0, board, next_level, state, board.opponent_colour())
             node.add_children(next_state)
@@ -793,32 +794,7 @@ class AlphaBeta:
                     node.value += (100 + node.game.board[y][x].value) * 1.2
                     #print("Utility allies: " + str(node.value))
 
-        #infinity = float('inf')
-        #print("The node colour is: " + node.colour)
-        #if node.colour == "white":
-        #    #print("Node colour is white")
-        #    for x in range(INITIAL_BOARD_SIDE):
-        #        for y in range(INITIAL_BOARD_SIDE):
-        #            if x >= 6:
-        #                #print("The y position is: " + str(y) +" and x position is: " + str(x))
-        #                break
-        #            else:
-        #                if node.game.board[y][x] == node.game.opponent():
-        #                    node.value -= (100 + node.game.board[y][x].value) * 1.2
-        #                elif node.game.board[y][x] == node.game.allies():
-        #                    node.value += (100 + node.game_board.board[y][x].value) * 1.2
-        #if node.colour == "black":
-        #    for x in range(INITIAL_BOARD_SIDE):
-        #        for y in range(INITIAL_BOARD_SIDE):
-        #            if x <= 2:
-        #                #print("The y position is: " + str(y) + " and x position is: " + str(x))
-        #                break
-        #            else:
-        #                if node.game.board[y][x] == node.game.opponent():
-        #                    node.value -= (100 + node.game.board[y][x].value) * 1.2
-        #                elif node.game.board[y][x] == node.game.allies():
-        #                    node.value += (100 + node.game.board[y][x].value) * 1.2
-        #print("Utility: " + str(node.value))
+
         return node.value
 
     def create_successors(self, node):
