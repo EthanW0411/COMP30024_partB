@@ -1,3 +1,8 @@
+"""
+Player for COMP30024 Artificial Intelligence, 2018
+Authors: Lianming Wu and Alexandre Hurbe
+"""
+
 from copy import deepcopy
 import random
 
