@@ -11,8 +11,8 @@ import random
 INITIAL_VALUE = 0
 CORNER_VALUE = -2
 SURROUNDED_VALUE = -1
-"""Constant for game board"""
 
+"""Constant for game board"""
 UNOCCUPIED = '-'
 CORNER = 'X'
 BLACK = '@'
@@ -23,6 +23,9 @@ DIRECTIONS = UP, DOWN, LEFT, RIGHT = (0, -1), (0, 1), (-1, 0), (1, 0)
 INITIAL_BY_CORNER_LOCATION = [(1, 0), (0, 1), (6, 0), (7, 1), (6, 7), (7, 6), (1, 7), (0, 6)]
 
 # --------------------------------------------------------------------------- #
+
+# HELPER FUNCTION FOR CHECKING THE GAME BOARD IN PLAYER
+
 
 def print_board(board):
     for y in range(INITIAL_BOARD_SIDE):
@@ -60,15 +63,15 @@ class Player:
         :param action: the opponent's recent action
         :return:
         """
-        print("-----------------------------------------update player---------------------------------------------")
+        #print("-----------------------------------------update player---------------------------------------------")
         self.game.update_action(action)
         print_board_piece(self.game.board)
         self.game.eliminate_about(action)
-        print("Player own game board updated: " + self.colour)
-        print_board_piece(self.game.board)
+        #print("Player own game board updated: " + self.colour)
+        #print_board_piece(self.game.board)
         #print("Scoreboard: ")
         #print_board(self.game.board)
-        print("-----------------------------------------finish update---------------------------------------------")
+        #print("-----------------------------------------finish update---------------------------------------------")
 
     def action(self, turns):
         """
@@ -80,13 +83,6 @@ class Player:
 
         # update turn number
         self.game.update_turns(turns)
-
-        '''
-                if turns <= 2:
-            best_square = sorted(self.game.board, key=lambda x: x.value, reverse=True)
-            action = (best_square.x, best_square.y)
-            return action
-        '''
 
         #print_board_piece(self.game.board)
         if self.game.phase == 'placing':
@@ -152,8 +148,6 @@ class Player:
             return action
 
 
-
-
 # --------------------------------------------------------------------------- #
 
 # HELPER CLASS FOR PLAYER
@@ -214,6 +208,8 @@ class GameBoard:
         """
         Shrink the board, eliminating all pieces along the outermost layer,
         and replacing the corners.
+        Modified from referee.py written by Matt Farrugia
+        and Shreyash Patodia.
 
         This method can be called up to two times only.
         """
@@ -343,7 +339,6 @@ class GameBoard:
                 for dx, dy in dirs:
                     if self.check_surrounded(x, y, dx, dy):
                         self.board[y][x].value = SURROUNDED_VALUE
-
 
     def initialize_scoreboard(self, colour):
         print("New initialise scoreboard for: " + colour)
@@ -629,120 +624,6 @@ class GameBoard:
             random.shuffle(moves)
             return moves
 
-    def refresh_scoreboard(self, node_level=None):
-        """
-        This scoreboard incentivize the AI to have a more defensive approach in playing the game
-
-        :return: Does not return anything, just updates scoreboard
-        """
-        if self.start_prediction:
-            if self.colour == 'white':
-                if (119 < self.turns + node_level) < 126 or (182 < self.turns + node_level < 190):
-                    start = self.n_shrinks
-                    end = INITIAL_BOARD_SIDE - self.n_shrinks
-                    s = self.n_shrinks
-                    for i in range(s, 8 - s):
-                        for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
-                            x, y = square
-                            if self.board[y][x].piece == WHITE:
-                                possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-                                for dx, dy in possible_moves:
-                                    if self.within_board(x + dx, y + dy) and self.board[y+dy][x+dx].piece == UNOCCUPIED:
-                                        self.board[y+dy][x+dx].value = 500
-                                    elif self.within_board(x + dx, y + dy) and \
-                                            (self.board[y+dy][x+dx].piece == WHITE
-                                             or self.board[y+dy][x+dx].piece == BLACK):
-                                        if self.within_board(x + (2*dx), y + (2*dy)) and \
-                                                self.board[y+(2*dy)][x+(2*dx)].piece == UNOCCUPIED:
-                                            self.board[y+(2*dy)][x+(2*dx)] = 500
-            if self.colour == 'black':
-                if (120 < self.turns + node_level) < 127 or (183 < self.turns + node_level < 191):
-                    start = self.n_shrinks
-                    end = INITIAL_BOARD_SIDE - self.n_shrinks
-                    s = self.n_shrinks
-                    for i in range(s, 8 - s):
-                        for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
-                            x, y = square
-                            if self.board[y][x].piece == BLACK:
-                                possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-                                for dx, dy in possible_moves:
-                                    if self.within_board(x + dx, y + dy) and self.board[y+dy][x+dx].piece == UNOCCUPIED:
-                                        self.board[y+dy][x+dx].value = 500
-                                    elif self.within_board(x + dx, y + dy) and \
-                                            (self.board[y+dy][x+dx].piece == WHITE
-                                             or self.board[y+dy][x+dx].piece == BLACK):
-                                        if self.within_board(x + (2*dx), y + (2*dy)) and \
-                                                self.board[y+(2*dy)][x+(2*dx)].piece == UNOCCUPIED:
-                                            self.board[y+(2*dy)][x+(2*dx)] = 500
-            for square in [(i, s), (s, i), (i, 7 - s), (7 - s, i)]:
-                x, y = square
-                self.board[y][x].value = -100
-
-        else:
-            refresh_board_no_predict_shrink(self)
-
-
-def refresh_board_no_predict_shrink(self):
-    start = self.n_shrinks
-    end = INITIAL_BOARD_SIDE - self.n_shrinks
-    possible_moves = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-    for x in range(start, end):
-        for y in range(start, end):
-            # This looks at the scoreboard when the player is white
-            if self.colour == 'white':
-                # Defensive behaviour
-                if self.board[y][x].piece == WHITE:
-                    for dx, dy in possible_moves:
-                        if self.within_board(x + dx, y + dy):
-                            if self.board[y + dy][x + dx].piece == BLACK:
-                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE:
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
-                # Aggressive behaviour
-                if self.board[y][x].piece == BLACK:
-                    for dx, dy in possible_moves:
-                        if self.within_board(x + dx, y + dy):
-                            if self.board[y + dy][x + dx].piece == UNOCCUPIED:
-                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == WHITE or \
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
-                                        self.board[y + dy][x + dx].value = 150
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                        self.board[y + dy][x + dx].value = 50
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
-
-            # This looks at the scoreboard when the player is black
-            if self.colour == 'black':
-                # Defensive behaviour
-                if self.board[y][x].piece == BLACK:
-                    for dx, dy in possible_moves:
-                        if self.within_board(x + dx, y + dy):
-                            if self.board[y + dy][x + dx].piece == WHITE:
-                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 300
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK:
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 400
-                # Aggressive behaviour
-                if self.board[y][x].piece == WHITE:
-                    for dx, dy in possible_moves:
-                        if self.within_board(x + dx, y + dy):
-                            if self.board[y + dy][x + dx].piece == UNOCCUPIED:
-                                if self.within_board(x + (-1 * dx), y + (-1 * dy)):
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == BLACK or \
-                                            self.board[y + (-1 * dy)][x + (-1 * dx)].piece == CORNER:
-                                        self.board[y + dy][x + dx].value = 150
-                                    if self.board[y + (-1 * dy)][x + (-1 * dx)].piece == UNOCCUPIED:
-                                        self.board[y + dy][x + dx].value = 50
-                                        self.board[y + (-1 * dy)][x + (-1 * dx)].value = 50
-
-
-
-
-
-
 
 # --------------------------------------------------------------------------- #
 
@@ -781,7 +662,6 @@ class AlphaBeta:
         self.root = root
 
     def alpha_beta_search(self, node):
-        #print("Calling alpha beta search--------------------------------------------------------------------------")
         infinity = float('inf')
         value = -infinity
         alpha = -infinity
@@ -790,7 +670,6 @@ class AlphaBeta:
         successors = self.create_successors(node)
         best_state = None
         for state in successors:
-            #print("State in alpha_beta search:" + str(state[0]))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
@@ -801,14 +680,10 @@ class AlphaBeta:
             if next_value > value:
                 value = next_value
                 best_state = state
-        #print("AlphaBeta:  Utility Value of Root Node: = " + str(alpha))
-        #print("AlphaBeta:  Best State is: " + best_state.name)
         return best_state
 
 
     def max_value(self, node, alpha, beta):
-       # print("Calling max_value%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        #print("AlphaBeta-->MAX: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
 
@@ -817,7 +692,6 @@ class AlphaBeta:
 
         successors = self.create_successors(node)
         for state in successors:
-           # print("State in max_value:" + str(state))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.check_shrink_board()
@@ -835,8 +709,6 @@ class AlphaBeta:
         return value
 
     def min_value(self, node, alpha, beta):
-        #print("Calling min_value################################################################################")
-        #print("AlphaBeta-->MIN: Visited Node::" + node.name)
         if self.is_terminal(node):
             return self.get_utility(node)
         infinity = float('inf')
@@ -845,7 +717,6 @@ class AlphaBeta:
         successors = self.create_successors(node)
 
         for state in successors:
-           # print("State in min_value:" + str(state))
             board = deepcopy(node.game)
             board.update_action_in_search(state)
             board.eliminate_about(state)
@@ -863,22 +734,21 @@ class AlphaBeta:
         return value
 
     def get_utility(self, node):
-        '''
+        """
         Calculate utility from a given game state
 
         :param node: the given game state
         :return: utility
-        '''
+        """
+
         assert node is not None
         for x in range(INITIAL_BOARD_SIDE):
             for y in range(INITIAL_BOARD_SIDE):
                 if node.game.board[y][x].piece == node.game.opponent():
                     node.value -= (100 + node.game.board[y][x].value) * 1.2
-                    #print("Utility opponent: " + str(node.value))
+
                 elif node.game.board[y][x].piece == node.game.allies():
                     node.value += (100 + node.game.board[y][x].value) * 1.2
-                    #print("Utility allies: " + str(node.value))
-
 
         return node.value
 
@@ -889,15 +759,16 @@ class AlphaBeta:
     def is_terminal(self, node):
         assert node is not None
         depth = 3
-        if node.game.turns > 128:
+        if node.game.turns > 123:
             depth += 1
-        elif node.game.turns > 192:
-            depth += 2
+        elif node.game.turns > 189:
+            depth += 3
         return node.level == depth
 
 # --------------------------------------------------------------------------- #
 
-# NODE STRUCTURE FOR TREE USED IN ALPHABETA PRUNING
+# NODE STRUCTURE FOR TREE USED IN ALPHA BETA PRUNING
+
 
 class Node:
     def __init__(self, value, game_board, level, move, colour):
