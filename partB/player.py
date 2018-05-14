@@ -62,7 +62,6 @@ class Player:
 
         :param action: the opponent's recent action
         """
-
         self.game.update_action(action)
         print_board_piece(self.game.board)
         self.game.eliminate_about(action)
@@ -74,7 +73,6 @@ class Player:
         :param turns: the number of turns that have taken place since the start of the current game phase
         :return: action
         """
-
         # update turn number
         self.game.update_turns(turns)
 
@@ -124,6 +122,7 @@ class Player:
                     self.game.eliminate_about(action)
                     print("Action: " + str(action))
                 return action
+            # run alpha beta pruning for rest turns
             root = Node(None, self.game, 1, None, self.colour)
             alpha_beta = AlphaBeta(None)
             action = alpha_beta.alpha_beta_search(root)
@@ -163,8 +162,6 @@ class GameBoard:
         self.phase = 'placing'
         self.pieces = {WHITE: 0, BLACK: 0}
         self.n_shrinks = 0
-        self.start_prediction = False
-
         self.initialize_scoreboard(self.colour)
 
     def update_action(self, action):
@@ -173,9 +170,10 @@ class GameBoard:
 
         :param action: the opponent's recent action
         """
-        # self.refresh_scoreboard()
+
         self.check_shrink_board()
 
+        # try to update an action in moving phase
         try:
             old_x, old_y = action[0]
             x, y = action[1]
@@ -183,6 +181,7 @@ class GameBoard:
             self.board[y][x].piece = self.opponent()
             self.pieces[self.opponent()] += 1
 
+        # try to update an action in placing phase
         except:
             x, y = action
             self.board[y][x].piece = self.opponent()
@@ -238,23 +237,14 @@ class GameBoard:
             self.board[y][x].piece = self.allies()
             self.pieces[self.allies()] += 1
 
-
         if self.phase == 'moving':
             action_from = action[0]
             action_to = action[1]
-            # print("The action from is: %s" %(action_from,))
-            # print("The action to is: %s" %(action_to,))
             a, b = action_from
             c, d = action_to
             self.board[b][a].piece = UNOCCUPIED
-            #print(self.board[b][a].piece)
             self.board[d][c].piece = self.allies()
             self.pieces[self.allies()] += 1
-            #print(self.board[d][c].piece)
-            #self.refresh_scoreboard()
-
-
-
 
     def opponent(self):
         """
@@ -297,16 +287,11 @@ class GameBoard:
 
         :param turns: the number of turns that have taken place since the start of the current game phase
         """
-
         # update game phase
         if turns in [0, 1] and self.turns != 0 and self.phase == 'placing':
             self.phase = 'moving'
-            #print(self.phase + " in " + self.colour + "---------------------------------------------")
-
-
 
         self.turns = turns
-        #print('Turns: ' + str(self.turns) + self.colour)
 
     def update_scoreboard(self):
         """
@@ -316,9 +301,7 @@ class GameBoard:
         start = self.n_shrinks
         end = INITIAL_BOARD_SIDE - self.n_shrinks
         dirs = [(-1, 0), (1, 0), (0, 1), (0, -1)]
-        #print(str(start))
-        #print(str(end))
-        #print("test*********************")
+
         for x in range(start, end):
             for y in range(start, end):
                 if self.board[y][x].piece == CORNER:
@@ -333,29 +316,17 @@ class GameBoard:
                         self.board[y][x].value = SURROUNDED_VALUE
 
     def initialize_scoreboard(self, colour):
-        print("New initialise scoreboard for: " + colour)
         """"
         assign values for each square in game board for placing phase
 
         """
-        #for square in INITIAL_BY_CORNER_LOCATION:
-            #x, y = square
-            #self.board[y][x].value = SURROUNDED_VALUE
-
         for y in range(INITIAL_BOARD_SIDE):
             for x in range(INITIAL_BOARD_SIDE):
                 if colour == "white" and ((x in [0, 2, 4, 6, 7] and y == 2) or (x in [0, 1, 3, 5, 7] and y == 3)):
-                    """
-                    2: two corners on best defensive line
-                    """
                     self.board[y][x].value = 200
 
                 if colour == "black" and ((x in [0, 2, 4, 6, 7] and y == 5) or (x in [0, 1, 3, 5, 7] and y == 4)):
-                    """
-                    5: two corners on best offensive line
-                    """
                     self.board[y][x].value = 200
-        #print_board(self.board)
 
 
 
@@ -465,8 +436,6 @@ class GameBoard:
         enemies = self.enemies(piece)
         return (firstval in enemies and secondval in enemies)
 
-
-
     def eliminate_about(self, square):
         """
         A piece has entered this square: look around to eliminate adjacent
@@ -476,10 +445,10 @@ class GameBoard:
 
         :param square: the square to look around
         """
-        try:
-            x,y = square[1]
-        except:
-            x,y = square
+        try: # check a nested tuple in moving phase
+            x, y = square[1]
+        except: # check a tuple in moving phase
+            x, y = square
 
         piece = self.board[y][x].piece
         targets = self.targets(piece)
@@ -492,46 +461,35 @@ class GameBoard:
                 targetval = self.board[target_y][target_x].piece
             if targetval in targets:
                 if self.surrounded(target_x, target_y, -dx, -dy):
-                    #print(self.board[target_y][target_x].piece + " at " + "(%d, %d)" % (target_y, target_x))
                     self.board[target_y][target_x].piece = UNOCCUPIED
                     self.pieces[targetval] -= 1
 
         # Check if the current piece is surrounded and should be eliminated
         if piece in self.pieces:
             if self.surrounded(x, y, 1, 0) or self.surrounded(x, y, 0, 1):
-                #print(self.board[y][x].piece + " at " + "(%d, %d)" % (y, x))
                 self.board[y][x].piece = UNOCCUPIED
                 self.pieces[piece] -= 1
 
     def moves_placing(self):
         """
         :return list of possible moves in placing phase
-        To do:
         """
-
         moves = []
-        #print_board_piece(self.board)
         if self.phase == 'placing':
             for x in range(INITIAL_BOARD_SIDE):
                 for y in range(INITIAL_BOARD_SIDE):
-                    if self.colour == "white" and 2<= y <= 5:
+                    if self.colour == "white" and 2 <= y <= 5:
                         # print(self.colour)
                         if self.board[y][x].piece == UNOCCUPIED:
-                            # print("test in moves_placing when colour == white and y <=5")
-                            # print(self.board[y][x].piece)
-                            # print(self.board[y][x].piece)
                             moves.append((x, y))
-                    if self.colour == "black" and 2<= y <= 5:
-                        # print("test in moves_placing when colour == black and y >=2")
+                    if self.colour == "black" and 2 <= y <= 5:
                         if self.board[y][x].piece == UNOCCUPIED:
-                            # print(self.board[y][x].piece)
                             moves.append((x, y))
-            # print("list of possible moves: " + str(moves))
+            # shuffle the list to get average performance in alpha beta pruning
             random.shuffle(moves)
             return moves
 
         if self.phase == 'moving':
-            #print("The move has been called in the moves_placing function")
             # check current board size
             start = self.n_shrinks
             end = INITIAL_BOARD_SIDE - self.n_shrinks
@@ -546,17 +504,13 @@ class GameBoard:
                             if self.within_board(move_to_x, move_to_y):
                                 if self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
                                         and self.board[move_to_y][move_to_x].value >= 0:
-                                    #print("add a possible move in white")
                                     moves.append(((x, y), (move_to_x, move_to_y)))
                                 if self.board[move_to_y][move_to_x].piece in self.pieces:
-                                    #print("check jump in white")
                                     # check jump
                                     move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
-                                    #print(str(((x, y), (move_to_x, move_to_y))))
                                     if self.within_board(move_to_x, move_to_y) \
                                         and self.board[move_to_y][move_to_x].piece == UNOCCUPIED\
                                             and self.board[move_to_y][move_to_x].value >= 0:
-                                        #print("add a possible jump in white")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
 
                     if self.colour == 'black' and self.board[y][x].piece == BLACK:
@@ -565,7 +519,6 @@ class GameBoard:
                             if self.within_board(move_to_x, move_to_y):
                                 if self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
                                         and self.board[move_to_y][move_to_x].value >= 0:
-                                    #print("add a possible move in black")
                                     moves.append(((x, y), (move_to_x, move_to_y)))
                                 if self.board[move_to_y][move_to_x].piece in self.pieces:
                                     # check jump
@@ -573,7 +526,6 @@ class GameBoard:
                                     if self.within_board(move_to_x, move_to_y) \
                                         and self.board[move_to_y][move_to_x].piece == UNOCCUPIED \
                                             and self.board[move_to_y][move_to_x].value >= 0:
-                                        #print("add a possible jump in black")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
             # no possible moves
             if not moves:
@@ -584,16 +536,12 @@ class GameBoard:
                                 move_to_x, move_to_y = x + dx, y + dy
                                 if self.within_board(move_to_x, move_to_y):
                                     if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
-                                        #print("add a possible move in white")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
                                     if self.board[move_to_y][move_to_x].piece in self.pieces:
-                                        #print("check jump in white")
                                         # check jump
                                         move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
-                                        #print(str(((x, y), (move_to_x, move_to_y))))
                                         if self.within_board(move_to_x, move_to_y) \
                                             and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
-                                            #print("add a possible jump in white")
                                             moves.append(((x, y), (move_to_x, move_to_y)))
 
                         if self.colour == 'black' and self.board[y][x].piece == BLACK:
@@ -601,18 +549,15 @@ class GameBoard:
                                 move_to_x, move_to_y = x + dx, y + dy
                                 if self.within_board(move_to_x, move_to_y):
                                     if self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
-                                        #print("add a possible move in black")
                                         moves.append(((x, y), (move_to_x, move_to_y)))
                                     if self.board[move_to_y][move_to_x].piece in self.pieces:
                                         # check jump
                                         move_to_x, move_to_y = move_to_x + dx, move_to_y + dy
                                         if self.within_board(move_to_x, move_to_y) \
                                             and self.board[move_to_y][move_to_x].piece == UNOCCUPIED:
-                                            #print("add a possible jump in black")
                                             moves.append(((x, y), (move_to_x, move_to_y)))
 
-
-            #print(str(moves))
+            # shuffle the list to get average performance in alpha beta pruning
             random.shuffle(moves)
             return moves
 
@@ -751,11 +696,14 @@ class AlphaBeta:
         depth = 3
 
         # search one level deeper when getting into first shrinking
-        if node.game.turns > 123:
+        if node.game.turns > 126:
             depth += 1
         # search two level deeper when getting into second shrinking
         elif node.game.turns > 189:
             depth += 2
+        # search three level deeper when getting into FINAL!!!
+        elif node.game.turns > 200:
+            depth += 3
         return node.level == depth
 
 # --------------------------------------------------------------------------- #
