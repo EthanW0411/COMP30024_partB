@@ -4,7 +4,8 @@ Project done by:
 Alexandre Hurbe
 Lianming Wu
 
-For this part of the assignment we chose to implement alpha beta pruning as our algorithm. This would allow our A.I to see a few steps ahead and help increase our chances of winning. Alpha beta pruning has a time complexity of O(b^(d/2)) in a best case. We thought this would be a desired algorithm as it would be able to look several moves ahead and also base its final solution on the state of the game (such as how many pieces we have left and the opponent) and not just the most optimal path. Additionally, thanks to the design of alpha beta pruning not all moves will have to be calculated which will be beneficial to us due to the time limit factor of this assignment.
+For this part of the assignment, we chose to implement alpha beta pruning as our algorithm. This would allow our A.I to see a few steps ahead and help increase our chances of winning. Alpha beta pruning has a time complexity of O(b^(d/2)) in a best case. We thought this would be the desired algorithm as it would be able to look several moves ahead and also base its final solution on the state of the game (such as how many pieces we have left and the opponent) and not just the most optimal path. Additionally, thanks to the design of alpha beta pruning, not all moves will have to be calculated which will be beneficial to us due to the time limit factor of this assignment.
+
 
 Placing Phase:
 
@@ -19,7 +20,9 @@ Placing Phase:
 6 - - - - - - - - B
 7 X - - - - - - X B
 
-White has the top part of the board and have exclusive rights to place along row 0 and row 1. Whereas, Black has the exclusive rights to place along row 6 and row 7. Our strategy for the placing phase was to neglect either row 0 or row 7 (depending on our player's colour) as placing on these rows will not provide much benefit during the moving phase. Additionally, this came with the benefit of speeding up our alpha beta pruning as there were less potential moves the algorithm had to compute. This drastically sped up the time as compared when we did include it in the first place. We decided that a more defensive approach was most optimal during the placing phase as having the most pieces alive will be very beneficial during the moving phase as it would allow the algorithm to compute more potential moves. Thus, we hard coded the first few turns to make sure that the AI would select the more desired formation. It also allowed us to save time on the first few moves so that we had more time to compute moves later on.
+
+White has the top part of the board and has exclusive rights to places in row 0 and row 1. Whereas, Black has the exclusive rights to place along row 6 and rows 7. Our strategy for the placing phase was to neglect either row 0 or row 7 (depending on our player's colour) as placing on these rows will not provide many benefits during the moving phase. Additionally, this came with the benefit of speeding up our alpha beta pruning as there were less potential moves the algorithm had to compute. This drastically sped up the time as compared when we did include it in the first place. We decided that a more defensive approach was most optimal during the placing phase as having the most pieces alive will be very beneficial during the moving phase as it would allow the algorithm to compute more potential moves. Thus, we hard coded the first few turns to make sure that the AI would select the more desired formation. It also allowed us to save time on the first few moves so that we had more time to compute moves later on.
+
 
 Turn 2 (White's Perspective)
  0 1 2 3 4 5 6 7
@@ -42,9 +45,11 @@ Turn 3 (Black's Perspective)
 5 B - - - - - - B
 6 - - - - - - - - B
 7 X - - - - - - X B
-"""
-Added by Ethan
-For rest turns in placing phase, our player plays based the scoreboard. The scoreboard is shown below. Take Black as an example:
+
+
+For the rest of the turns in placing phase, our player plays based on the following scoreboard. The scoreboard is shown below.
+
+Scoreboard (Black's perspective)
  -2  -1   0   0   0   0  -1  -2
 
  -1   0   0   0   0   0   0  -1
@@ -60,21 +65,17 @@ For rest turns in placing phase, our player plays based the scoreboard. The scor
  -1   0   0   0   0   0   0  -1
 
  -2  -1   0   0   0   0  -1  -2
-      Black's scoreboard
-Black will place on these squares after it occupied those two corners. And black will leave space in between as traps for white. 
 
 
-"""
+After black places its pieces in the first few hard coded spots. The black player will try to place its pieces on these squares. Black will also attempt to leave spaces in between in hopes of fooling the enemy to place its pieces there.
+
 
 The Movement phase:
-  During the movement phase our algorithm would look at each piece and evaluate the next three moves. This would help us plan further and come up with the best possible move. During each tested move, the algorithm would also refresh the scoreboard to see what would be the next best possible move. After reaching the third move in a tested path, the algorithm would then evaluate the state of the game and return a score associated with it. Additionally, when evaluating each move, the scoreboard is updated so that the next move can be more optimal. The function also looks at when the board is about to shrink and predicts the necessary moves to make sure as many pieces stay alive.However, due to the fact the algorithm would only look a few steps forward at a time if many pieces were bundled up together it would not be able to see how to get them out all alive.
 
+  During the movement phase our algorithm would look at each piece and evaluate the next three moves. This would help us plan further and come up with the best possible move. During each tested move, the algorithm would also refresh the scoreboard to see what would be the next best possible move. After reaching the third move in a tested path, the algorithm would then evaluate the state of the game and return a score associated with it. Additionally, when evaluating each move, the scoreboard is updated so that the next move can be more optimal. The function also looks at when the board is about to shrink and predicts the necessary moves to make sure as many pieces stay alive.However, due to the fact the algorithm would only look a few steps forward at a time if many pieces were bundled up together it would not be able to see how to get them out all alive.
 
 As the board continues to shrink there are less potential moves to calculate and maybe even less pieces to move, thus during the shrinkage we will increase the depth of our alpha beta pruning allowing to calculate even more moves ahead.
 
 During the final evaluation of the search, the algorithm will look at its own pieces and see what their score is on that grid and add it up. It will also look at the opponent's pieces and minus off points for each alive and the value of that grid they are on. The function looked at what value the square was on and added a 100 to it and multiplied it by a factor of 1.2 to help increase the discrapencies between good moves and average moves.
 
-"""
-Added by Ethan
-For optimization, when our player are looking for possible moves in alpha beta pruning, it will filter out those square are surrounded by its opponent to reduce the number of states in alpha beta pruning, so the player will be able to reach deeper. And as the game board get shrinked, the number of pieces on board are getting less, which allows our player to reach deeper. So we increase depth in alpha beta pruning before 123 turns and 189 turns to predict board shrinking and reach deeper.
-"""
+For optimization, when our player is looking for possible moves in alpha beta pruning, it will filter out those square are surrounded by its opponent to reduce the number of states in alpha beta pruning, so the player will be able to search deeper. As the gameboard shrinks, the number of spaces on the board is less, which allows our AI to search deeper. Thus, we increased depth in alpha beta pruning before 123 turns and 189 turns to predict board shrinking and reach deeper.
