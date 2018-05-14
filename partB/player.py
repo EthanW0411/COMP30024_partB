@@ -42,16 +42,16 @@ def print_board_piece(board):
             line += board[x][y].piece + " "
         print(line)
 
+# --------------------------------------------------------------------------- #
 
 # PLAYER WHICH RUNS ALPHABETA PRUNING
+
 
 class Player:
 
     def __init__(self, colour):
         self.colour = colour
         self.game = GameBoard(colour)
-
-
 
     def update(self, action):
         """
@@ -61,31 +61,25 @@ class Player:
         To represent a forfeited turn, use the value None
 
         :param action: the opponent's recent action
-        :return:
         """
-        #print("-----------------------------------------update player---------------------------------------------")
+
         self.game.update_action(action)
         print_board_piece(self.game.board)
         self.game.eliminate_about(action)
-        #print("Player own game board updated: " + self.colour)
-        #print_board_piece(self.game.board)
-        #print("Scoreboard: ")
-        #print_board(self.game.board)
-        #print("-----------------------------------------finish update---------------------------------------------")
 
     def action(self, turns):
         """
         Called by referee to request an action by the player
 
         :param turns: the number of turns that have taken place since the start of the current game phase
-        :return:
+        :return: action
         """
 
         # update turn number
         self.game.update_turns(turns)
 
-        #print_board_piece(self.game.board)
         if self.game.phase == 'placing':
+            # take corners in first few turns
             if turns == 0:
                 action = (0, 2)
                 self.game.update_action_in_search(action)
@@ -135,7 +129,6 @@ class Player:
             action = alpha_beta.alpha_beta_search(root)
             self.game.update_action_in_search(action)
             self.game.eliminate_about(action)
-            print("Action: " + str(action))
             return action
 
         if self.game.phase == 'moving':
@@ -144,7 +137,6 @@ class Player:
             action = alpha_beta.alpha_beta_search(root)
             self.game.update_action_in_search(action)
             self.game.eliminate_about(action)
-            print("Action: " + str(action) + " by " + self.colour)
             return action
 
 
@@ -682,7 +674,6 @@ class AlphaBeta:
                 best_state = state
         return best_state
 
-
     def max_value(self, node, alpha, beta):
         if self.is_terminal(node):
             return self.get_utility(node)
@@ -715,7 +706,6 @@ class AlphaBeta:
         value = infinity
 
         successors = self.create_successors(node)
-
         for state in successors:
             board = deepcopy(node.game)
             board.update_action_in_search(state)
@@ -738,7 +728,7 @@ class AlphaBeta:
         Calculate utility from a given game state
 
         :param node: the given game state
-        :return: utility
+        :return: utility value
         """
 
         assert node is not None
@@ -746,7 +736,6 @@ class AlphaBeta:
             for y in range(INITIAL_BOARD_SIDE):
                 if node.game.board[y][x].piece == node.game.opponent():
                     node.value -= (100 + node.game.board[y][x].value) * 1.2
-
                 elif node.game.board[y][x].piece == node.game.allies():
                     node.value += (100 + node.game.board[y][x].value) * 1.2
 
@@ -758,11 +747,15 @@ class AlphaBeta:
 
     def is_terminal(self, node):
         assert node is not None
+        # default depth for alpha beta pruning
         depth = 3
+
+        # search one level deeper when getting into first shrinking
         if node.game.turns > 123:
             depth += 1
+        # search two level deeper when getting into second shrinking
         elif node.game.turns > 189:
-            depth += 3
+            depth += 2
         return node.level == depth
 
 # --------------------------------------------------------------------------- #

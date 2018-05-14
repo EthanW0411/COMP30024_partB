@@ -23,14 +23,14 @@ White has the top part of the board and have exclusive rights to place along row
 
 Turn 2 (White's Perspective)
  0 1 2 3 4 5 6 7
-0 X - - - - - - X W
-1 - - - - - - - - W
+0 X - - - - - - X W <- Means black cannot place on this row
+1 - - - - - - - - W <- Means black cannot place on this row
 2 W - - - - - - W
 3 - - - - - - - -
 4 - - - - - - - -
 5 B - - - - - - -
-6 - - - - - - - - B
-7 X - - - - - - X B
+6 - - - - - - - - B <- Means white cannot place on this row
+7 X - - - - - - X B <- Means white cannot place on this row
 
 Turn 3 (Black's Perspective)
  0 1 2 3 4 5 6 7
@@ -42,11 +42,39 @@ Turn 3 (Black's Perspective)
 5 B - - - - - - B
 6 - - - - - - - - B
 7 X - - - - - - X B
+"""
+Added by Ethan
+For rest turns in placing phase, our player plays based the scoreboard. The scoreboard is shown below. Take Black as an example:
+ -2  -1   0   0   0   0  -1  -2
 
+ -1   0   0   0   0   0   0  -1
+
+  0   0   0   0   0   0   0   0
+
+  0   0   0   0   0   0   0   0
+
+200 200   0 200   0   0   0 200
+
+200   0 200   0 200   0 200 200
+
+ -1   0   0   0   0   0   0  -1
+
+ -2  -1   0   0   0   0  -1  -2
+      Black's scoreboard
+Black will place on these squares after it occupied those two corners. And black will leave space in between as traps for white. 
+
+
+"""
 
 The Movement phase:
   During the movement phase our algorithm would look at each piece and evaluate the next three moves. This would help us plan further and come up with the best possible move. During each tested move, the algorithm would also refresh the scoreboard to see what would be the next best possible move. After reaching the third move in a tested path, the algorithm would then evaluate the state of the game and return a score associated with it. Additionally, when evaluating each move, the scoreboard is updated so that the next move can be more optimal. The function also looks at when the board is about to shrink and predicts the necessary moves to make sure as many pieces stay alive.However, due to the fact the algorithm would only look a few steps forward at a time if many pieces were bundled up together it would not be able to see how to get them out all alive.
 
+
 As the board continues to shrink there are less potential moves to calculate and maybe even less pieces to move, thus during the shrinkage we will increase the depth of our alpha beta pruning allowing to calculate even more moves ahead.
 
 During the final evaluation of the search, the algorithm will look at its own pieces and see what their score is on that grid and add it up. It will also look at the opponent's pieces and minus off points for each alive and the value of that grid they are on. The function looked at what value the square was on and added a 100 to it and multiplied it by a factor of 1.2 to help increase the discrapencies between good moves and average moves.
+
+"""
+Added by Ethan
+For optimization, when our player are looking for possible moves in alpha beta pruning, it will filter out those square are surrounded by its opponent to reduce the number of states in alpha beta pruning, so the player will be able to reach deeper. And as the game board get shrinked, the number of pieces on board are getting less, which allows our player to reach deeper. So we increase depth in alpha beta pruning before 123 turns and 189 turns to predict board shrinking and reach deeper.
+"""
